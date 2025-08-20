@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+    import { getAuth } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+    import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+  </script>
+  <script type="module" src="script.js"></script>
+</head>
+<body>
+  <header class="site-header">
+     <nav>
+      <a href="index.html" class="logo">
+        <img src="logo.png" alt="The Geek Shop Logo" style="height: 40px;">
+      </a>
+      <div class="nav-links">
+        <a href="index.html">Products</a>
+        <a href="status.html">Order Status</a>
+        <a href="admin.html">Admin</a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div id="login-panel">
+      <h1>Admin Login</h1>
+      <form id="login-form" class="form">
+        <div>
+          <label>Email</label>
+          <input id="admin-email" type="email" required>
+        </div>
+        <div>
+          <label>Password</label>
+          <input id="admin-pass" type="password" required>
+        </div>
+        <button type="submit">Login</button>
+      </form>
+    </div>
+
+    <div id="admin-panel" style="display: none;">
+      <div class="panel-header">
+        <h1>Admin Panel</h1>
+        <button onclick="logoutAdmin()">Logout</button>
+      </div>
+
+      <h2>Add Product</h2>
+      <form id="add-product-form" class="form">
+        <div class="row">
+          <div>
+            <label>Name</label>
+            <input id="add-name" required>
+          </div>
+          <div>
+            <label>Price (tk)</label>
+            <input id="add-price" required>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Discount (tk)</label>
+            <input id="add-discount">
+          </div>
+          <div>
+            <label>Image URL</label>
+            <input id="add-image" required>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Category</label>
+            <select id="add-category" required>
+              <option value="all">All</option>
+              <option value="new">New</option>
+              <option value="hot">Hot</option>
+            </select>
+          </div>
+          <div>
+            <label>Color</label>
+            <input id="add-color">
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Stock</label>
+            <input id="add-stock" type="number" min="0">
+          </div>
+        </div>
+        <div>
+          <label>Description</label>
+          <textarea id="add-desc"></textarea>
+        </div>
+        <button type="submit">Add Product</button>
+      </form>
+
+      <h2>Products</h2>
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Price</th>
+              <th>Image URL</th>
+              <th>Category</th>
+              <th>Color</th>
+              <th>Discount (tk)</th>
+              <th>Stock</th>
+              <th>Description</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="products-body"></tbody>
+        </table>
+      </div>
+
+      <h2>Orders</h2>
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Product</th>
+              <th>Color</th>
+              <th>Unit Price</th>
+              <th>Qty</th>
+              <th>Delivery</th>
+              <th>Total</th>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Address</th>
+              <th>Payment</th>
+              <th>Pay Number</th>
+              <th>Txn ID</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="orders-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+<footer style="background-color: #e8e8ff; padding: 20px; text-align: center;height: 90px; color: #000000; font-family: Arial, sans-serif; position: fixed; bottom: 0; width: 100%; box-sizing: border-box;">
+  <div>
+    <a href="https://www.facebook.com/thegeek.shop0"  style="margin:  10px;">
+      <img src="facebook.png" style="width: 30px; height: 30px;">
+    </a>
+   <a href="instagram.com/thegeek.shop0" target="_blank" style="margin:  10px;">
+      <img src="instagram.png"  style="width: 30px; height: 30px;">
+    </a>
+<a href="wa.me/01960788862" target="_blank" style="margin:  10px;">
+      <img src="whatsapp.png"  style="width: 30px; height: 30px;">
+    </a>
+  </div>
+  
+  <p>&copy; All rights reserved by The Geek Shop</p>
+</footer>
+</body>
+</html>
