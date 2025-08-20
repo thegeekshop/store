@@ -190,7 +190,7 @@ function handlePaymentChange(e) {
     note.textContent = `Send money to ${BKASH_NUMBER} and provide transaction ID.`;
     paymentNumberInput.value = BKASH_NUMBER;
   } else if (method === 'Cash on Delivery') {
-    note.textContent = `Contact ${COD_NUMBER} for confirmation.`;
+    note.textContent = `Send the delivery charge to ${COD_NUMBER} and provide transaction ID.`;
     paymentNumberInput.value = COD_NUMBER;
   } else {
     note.textContent = '';

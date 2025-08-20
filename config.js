@@ -7,6 +7,6 @@ export const firebaseConfig = {
   appId: "1:754381329378:web:09c3fe0d507a1749de5fbb"
 };
 
-export const BKASH_NUMBER = '01XXXXXXXXX'; // Replace with your Bkash number
-export const COD_NUMBER = '01YYYYYYYYY'; // Replace with your COD contact number
+export const BKASH_NUMBER = '01960788862'; // Replace with your Bkash number
+export const COD_NUMBER = '01960788862'; // Replace with your COD contact number
 export const DELIVERY_FEE = 70; // Default delivery fee
