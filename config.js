@@ -1,5 +1,5 @@
 export const firebaseConfig = {
-  apiKey: "${{ secrets.API_KEY }}",
+  apiKey: "AIzaSyC-8wLcmLaLs87ZZ2WjgnmmILiOfcnINg8",
   authDomain: "geekshopbd.firebaseapp.com",
   projectId: "geekshopbd",
   storageBucket: "geekshopbd.firebasestorage.app",
@@ -12,6 +12,7 @@ export const BKASH_NUMBER = '01960788862 (Personal)'; // Replace with your Bkash
 export const COD_NUMBER = '01960788862 (Personal)'; // Replace with your COD contact number
 
 export const DELIVERY_FEE = 70; // Default delivery fee
+
 
 
 
