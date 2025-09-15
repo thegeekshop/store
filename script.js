@@ -78,7 +78,8 @@ async function displayProducts() {
 
 function createProductCard(p) {
   const isUpcoming = p.price === 'TBA';
-  const isOOS = !isUpcoming && Number(p.stock) <= 0;
+  const isOOS = !isUpcoming && Number(p.stock) <= 0 && Number(p.stock) !== -1;
+  const isPreOrder = Number(p.stock) === -1;
   const hasDiscount = Number(p.discount) > 0;
   const price = Number(p.price) || 0;
   const finalPrice = hasDiscount ? (price - Number(p.discount)) : price;
@@ -93,6 +94,7 @@ function createProductCard(p) {
       ${p.category === 'hot' ? `<span class="badge hot">HOT</span>` : ``}
       ${isOOS ? `<span class="badge oos">OUT OF STOCK</span>` : ``}
       ${isUpcoming ? `<span class="badge upcoming">UPCOMING</span>` : ``}
+      ${isPreOrder ? `<span class="badge preorder">PRE ORDER</span>` : ``}
     </div>
     <h3>${p.name}</h3>
     <div class="muted">Color: ${p.color || '-'}</div>
@@ -101,14 +103,18 @@ function createProductCard(p) {
     </div>
     <p class="desc">${p.description || ''}</p>
     <div class="order-row">
-      <button ${isOOS || isUpcoming ? 'disabled' : ''} data-id="${p.id}" class="order-btn">Order</button>
+      ${isPreOrder ? `<button class="preorder-btn">Pre Order</button>` : `<button ${isOOS || isUpcoming ? 'disabled' : ''} data-id="${p.id}" class="order-btn">Order</button>`}
     </div>
   `;
 
-  if (!isOOS && !isUpcoming) {
+  if (!isOOS && !isUpcoming && !isPreOrder) {
     card.querySelector('.order-btn').addEventListener('click', (e) => {
       const id = e.currentTarget.getAttribute('data-id');
       openCheckoutModal(id);
+    });
+  } else if (isPreOrder) {
+    card.querySelector('.preorder-btn').addEventListener('click', () => {
+      window.location.href = 'https://facebook.com/thegeek.shop0';
     });
   }
 
@@ -279,15 +285,15 @@ async function submitCheckoutOrder(e) {
       }
 
       const currentStock = Number(productSnap.data().stock);
-      if (currentStock < qty) {
+      if (currentStock !== -1 && currentStock < qty) { // Allow pre-orders (stock = -1) to bypass stock check
         throw new Error(`Insufficient stock. Only ${currentStock} available.`);
       }
 
-      const newStock = currentStock - qty;
-      console.log('Updating stock for product:', productId, 'New stock:', newStock); // Debug log
-
-      // Update stock
-      transaction.update(productRef, { stock: Number(newStock) });
+      if (currentStock !== -1) { // Only update stock if not a pre-order
+        const newStock = currentStock - qty;
+        console.log('Updating stock for product:', productId, 'New stock:', newStock); // Debug log
+        transaction.update(productRef, { stock: Number(newStock) });
+      }
 
       // Create order
       const orderRef = doc(collection(db, 'orders'));
@@ -365,17 +371,29 @@ async function renderDataTable() {
   const cols = [
     { key: 'name', editable: true },
     { key: 'price', editable: true },
-    { key: 'image', editable: true },
     { key: 'category', editable: true },
     { key: 'color', editable: true },
     { key: 'discount', editable: true },
-    { key: 'stock', editable: true },
-    { key: 'description', editable: true }
+    { key: 'stock', editable: true }
   ];
 
   products.forEach(p => {
+    // Main row
     const tr = document.createElement('tr');
 
+    // Toggle button cell
+    const tdToggle = document.createElement('td');
+    tdToggle.className = 'toggle-details';
+    tdToggle.innerHTML = '▼';
+    tdToggle.addEventListener('click', (e) => {
+      const detailsRow = e.target.closest('tr').nextElementSibling;
+      const isVisible = detailsRow.classList.contains('show');
+      detailsRow.classList.toggle('show', !isVisible);
+      e.target.textContent = isVisible ? '▼' : '▲';
+    });
+    tr.appendChild(tdToggle);
+
+    // Main columns
     cols.forEach(col => {
       const td = document.createElement('td');
       td.contentEditable = col.editable;
@@ -407,15 +425,16 @@ async function renderDataTable() {
           tr.querySelector('td[data-status="1"]').textContent = computeStatus(cur);
         }
       });
-
       tr.appendChild(td);
     });
 
+    // Status column
     const tdStatus = document.createElement('td');
     tdStatus.dataset.status = '1';
     tdStatus.textContent = computeStatus(p);
     tr.appendChild(tdStatus);
 
+    // Actions column
     const tdActions = document.createElement('td');
     const del = document.createElement('button');
     del.className = 'danger';
@@ -427,11 +446,44 @@ async function renderDataTable() {
     tr.appendChild(tdActions);
 
     tbody.appendChild(tr);
+
+    // Details row for Image URL and Description
+    const detailsRow = document.createElement('tr');
+    detailsRow.className = 'details-row';
+    const detailsCell = document.createElement('td');
+    detailsCell.colSpan = cols.length + 3; // Span across toggle, cols, status, and actions
+    detailsCell.className = 'details-content';
+
+    const imageCell = document.createElement('div');
+    imageCell.contentEditable = true;
+    imageCell.textContent = p.image != null ? p.image : '';
+    imageCell.addEventListener('blur', async (e) => {
+      const val = e.target.textContent.trim();
+      if (val === (p.image != null ? String(p.image) : '')) return;
+      await updateProductField(p.id, 'image', val);
+    });
+
+    const descCell = document.createElement('div');
+    descCell.contentEditable = true;
+    descCell.textContent = p.description != null ? p.description : '';
+    descCell.addEventListener('blur', async (e) => {
+      const val = e.target.textContent.trim();
+      if (val === (p.description != null ? String(p.description) : '')) return;
+      await updateProductField(p.id, 'description', val);
+    });
+
+    detailsCell.innerHTML = `<strong>Image URL:</strong> `;
+    detailsCell.appendChild(imageCell);
+    detailsCell.innerHTML += `<br><strong>Description:</strong> `;
+    detailsCell.appendChild(descCell);
+    detailsRow.appendChild(detailsCell);
+    tbody.appendChild(detailsRow);
   });
 }
 
 function computeStatus(p) { 
   if (p.price === 'TBA') return 'Upcoming';
+  if (Number(p.stock) === -1) return 'Pre Order';
   return Number(p.stock) > 0 ? 'In Stock' : 'Out of Stock'; 
 }
 
@@ -464,11 +516,24 @@ async function renderOrdersTable() {
 
   orders.forEach(o => {
     const tr = document.createElement('tr');
+    
+    // Toggle button cell
+    const tdToggle = document.createElement('td');
+    tdToggle.className = 'toggle-details';
+    tdToggle.innerHTML = '▼';
+    tdToggle.addEventListener('click', (e) => {
+      const detailsRow = e.target.closest('tr').nextElementSibling;
+      const isVisible = detailsRow.classList.contains('show');
+      detailsRow.classList.toggle('show', !isVisible);
+      e.target.textContent = isVisible ? '▼' : '▲';
+    });
+    tr.appendChild(tdToggle);
+
+    // Main columns
     const tds = [
       new Date(o.timeISO).toLocaleString(),
       o.productName,
       o.color,
-      '৳' + Number(o.unitPrice).toFixed(2),
       o.quantity,
       '৳' + Number(o.deliveryFee).toFixed(2),
       '৳' + Number(o.total).toFixed(2),
@@ -476,7 +541,6 @@ async function renderOrdersTable() {
       o.phone,
       o.address,
       o.paymentMethod,
-      o.paymentNumber,
       o.transactionId
     ];
     tds.forEach(v => {
@@ -510,6 +574,20 @@ async function renderOrdersTable() {
     tr.appendChild(tdStatus);
 
     tbody.appendChild(tr);
+
+    // Details row for Unit Price
+    const detailsRow = document.createElement('tr');
+    detailsRow.className = 'details-row';
+    const detailsCell = document.createElement('td');
+    detailsCell.colSpan = 12; // Span across toggle, main columns, and status
+    detailsCell.className = 'details-content';
+
+    const unitPriceCell = document.createElement('div');
+    unitPriceCell.textContent = `Unit Price: ৳${Number(o.unitPrice).toFixed(2)}`;
+    detailsCell.appendChild(unitPriceCell);
+
+    detailsRow.appendChild(detailsCell);
+    tbody.appendChild(detailsRow);
   });
 }
 
