@@ -74,6 +74,33 @@ async function displayProducts() {
     document.getElementById('co-qty').addEventListener('input', updateTotalInModal);
     document.getElementById('co-address').addEventListener('input', updateDeliveryCharge);
   }
+
+  // Bind image viewer
+  const viewer = document.getElementById('image-viewer');
+  const viewerImg = document.getElementById('viewer-img');
+  const closeViewer = document.getElementById('close-viewer');
+  if (viewer && viewerImg && closeViewer) {
+    document.querySelectorAll('.product-card img').forEach(img => {
+      img.addEventListener('click', () => {
+        viewerImg.src = img.src;
+        viewerImg.alt = img.alt;
+        viewer.classList.add('show');
+      });
+    });
+    viewer.addEventListener('click', (e) => {
+      if (e.target === viewer) {
+        viewer.classList.remove('show');
+        viewer.classList.remove('zoomed');
+      }
+    });
+    closeViewer.addEventListener('click', () => {
+      viewer.classList.remove('show');
+      viewer.classList.remove('zoomed');
+    });
+    viewerImg.addEventListener('dblclick', () => {
+      viewer.classList.toggle('zoomed');
+    });
+  }
 }
 
 function createProductCard(p) {
