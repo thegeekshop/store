@@ -43,8 +43,8 @@ html, body { margin: 0; padding: 0; font-family: system, -apple-system, Segoe UI
   margin: 12px auto;
   padding: 0 16px; 
 }
-h1 { margin: 0 0 12px; }
-h2 { margin: 22px 0 10px; }
+h1 { margin: 0 0 12px; font-size: 1.75rem; }
+h2 { margin: 22px 0 10px; font-size: 1.5rem; }
 
 .card { 
   background: var(--card); 
@@ -61,13 +61,14 @@ h2 { margin: 22px 0 10px; }
   border-radius: 8px; 
   width: 100%; 
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  font-size: 1rem;
 }
 .row input:focus, .row select:focus {
   border-color: var(--form-accent);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   outline: none;
 }
-textarea { padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; min-height: 100px; width: 100%; }
+textarea { padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; min-height: 100px; width: 100%; font-size: 1rem; }
 button { 
   padding: 12px 16px; 
   border: 0; 
@@ -76,6 +77,7 @@ button {
   color: #fff; 
   cursor: pointer; 
   transition: background 0.3s ease, transform 0.2s ease;
+  font-size: 1rem;
 }
 button:hover { 
   background: #374151; 
@@ -167,10 +169,12 @@ button.preorder-btn:hover { background: #7c3aed; }
 .notice-card h3 {
     margin: 0 0 10px 0;
     color: #222;
+    font-size: 1.25rem;
 }
 .notice-card p {
     color: #444;
     margin: 0;
+    font-size: 0.9rem;
 }
 
 /* Status Form Enhancements */
@@ -200,6 +204,7 @@ footer {
     text-align: center;
     padding: 8px 0;
     margin: 0;
+    font-size: 0.9rem;
 }
 
 .image-viewer {
@@ -242,14 +247,102 @@ footer {
     cursor: pointer;
 }
 
+/* Mobile-specific adjustments */
+@media (max-width: 600px) {
+  .site-header nav {
+    flex-direction: column;
+    gap: 12px;
+    padding: 10px 16px;
+  }
+  .site-header nav .nav-links {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .site-header nav a {
+    width: 100%;
+    text-align: center;
+    padding: 8px;
+    font-size: 0.95rem;
+  }
+  .container {
+    padding: 0 12px;
+    margin: 8px auto;
+  }
+  h1 {
+    font-size: 1.5rem;
+    margin: 0 0 10px;
+  }
+  h2 {
+    font-size: 1.25rem;
+    margin: 16px 0 8px;
+  }
+  .status-form {
+    max-width: 100%;
+    padding: 0 12px;
+  }
+  .status-form .form {
+    padding: 16px;
+    gap: 10px;
+  }
+  .status-form input {
+    font-size: 0.95rem;
+    padding: 8px;
+  }
+  .status-form button {
+    padding: 10px;
+    font-size: 0.95rem;
+  }
+  .notice-section {
+    flex-direction: column;
+    gap: 12px;
+    padding: 8px;
+  }
+  .notice-card {
+    padding: 12px;
+    min-height: 100px;
+  }
+  .notice-card h3 {
+    font-size: 1.1rem;
+  }
+  .notice-card p {
+    font-size: 0.85rem;
+  }
+  .card {
+    padding: 12px;
+  }
+  .modal-content {
+    max-width: 90%;
+    padding: 8px;
+  }
+  .modal-header {
+    padding: 8px 12px;
+  }
+  .data-table {
+    font-size: 0.85rem;
+  }
+  .data-table th, .data-table td {
+    padding: 8px;
+  }
+}
+
 @media (max-width: 480px) {
-    .image-viewer img {
-        max-width: 95%;
-        max-height: 85%;
-    }
-    .close-viewer {
-        top: 10px;
-        right: 10px;
-        font-size: 24px;
-    }
+  .image-viewer img {
+    max-width: 95%;
+    max-height: 85%;
+  }
+  .close-viewer {
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+  }
+  .status-form input {
+    font-size: 0.9rem;
+  }
+  .status-form button {
+    font-size: 0.9rem;
+  }
+  footer {
+    font-size: 0.85rem;
+  }
 }
