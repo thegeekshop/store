@@ -104,16 +104,15 @@ async function displayProducts() {
 }
 
 function createProductCard(p) {
-  const isUpcoming = p.price === 'TBA';
-  const isOOS = !isUpcoming && Number(p.stock) <= 0 && Number(p.stock) !== -1;
-  const isPreOrder = Number(p.stock) === -1;
+  const isUpcoming = p.availability === 'Upcoming';
+  const isOOS = !isUpcoming && Number(p.stock) <= 0 && p.availability !== 'Pre Order';
+  const isPreOrder = p.availability === 'Pre Order';
   const hasDiscount = Number(p.discount) > 0;
   const price = Number(p.price) || 0;
   const finalPrice = hasDiscount ? (price - Number(p.discount)) : price;
 
   const card = document.createElement('div');
   card.className = 'card product-card';
-
   card.innerHTML = `
     <img src="${p.image}" alt="${p.name}" onerror="this.src=''; this.alt='Image not available';">
     <div class="badges">
@@ -131,6 +130,7 @@ function createProductCard(p) {
     <p class="desc">${p.description || ''}</p>
     <div class="order-row">
       ${isPreOrder ? `<button class="preorder-btn">Pre Order</button>` : `<button ${isOOS || isUpcoming ? 'disabled' : ''} data-id="${p.id}" class="order-btn">Order</button>`}
+      <a href="https://m.me/thegeek.shop0" class="messenger-btn"><i style='font-size:24px' class='fab'>&#xf39f;</i></a>
     </div>
   `;
 
@@ -141,7 +141,7 @@ function createProductCard(p) {
     });
   } else if (isPreOrder) {
     card.querySelector('.preorder-btn').addEventListener('click', () => {
-      window.location.href = 'https://facebook.com/thegeek.shop0';
+      openCheckoutModal(p.id, true);
     });
   }
 
@@ -168,7 +168,7 @@ function updateDeliveryCharge() {
 }
 
 // ====== CHECKOUT MODAL FLOW ======
-async function openCheckoutModal(productId) {
+async function openCheckoutModal(productId, isPreOrder = false) {
   const products = await loadProducts();
   const p = products.find(x => x.id === productId);
   if (!p) return;
@@ -185,16 +185,30 @@ async function openCheckoutModal(productId) {
   document.getElementById('co-available-stock').value = String(p.stock);
   document.getElementById('co-qty').value = 1;
   document.getElementById('co-qty').max = p.stock;
-  document.getElementById('co-payment').value = '';
+  document.getElementById('co-payment').value = isPreOrder ? 'Bkash' : '';
+  document.getElementById('co-payment').disabled = isPreOrder;
   document.getElementById('co-payment-number').value = '';
   document.getElementById('co-txn').value = '';
   document.getElementById('co-name').value = '';
   document.getElementById('co-phone').value = '';
   document.getElementById('co-address').value = '';
   document.getElementById('co-note').textContent = '';
+  document.getElementById('co-policy').checked = false;
+  document.getElementById('co-pay-now').style.display = 'none';
+  document.getElementById('co-due-amount').style.display = 'none';
 
   document.getElementById('co-delivery').value = `Delivery Charge = ${DELIVERY_FEE}`;
   document.getElementById('co-delivery').dataset.fee = DELIVERY_FEE;
+
+  if (isPreOrder) {
+    const preOrderPrice = Math.round((unit * 0.25) / 5) * 5;
+    document.getElementById('co-pay-now').value = preOrderPrice.toFixed(2);
+    document.getElementById('co-due-amount').value = (unit - preOrderPrice).toFixed(2);
+    document.getElementById('co-payment-number').value = BKASH_NUMBER;
+    document.getElementById('co-note').textContent = `Send money to ${BKASH_NUMBER} and provide transaction ID.`;
+    document.getElementById('co-pay-now').style.display = 'block';
+    document.getElementById('co-due-amount').style.display = 'block';
+  }
 
   updateTotalInModal();
 
@@ -213,6 +227,20 @@ function updateTotalInModal() {
   const delivery = Number(document.getElementById('co-delivery').dataset.fee) || DELIVERY_FEE;
   const total = (qty * unit) + delivery;
   document.getElementById('co-total').value = total.toFixed(2);
+
+  const paymentMethod = document.getElementById('co-payment').value;
+  const isPreOrder = paymentMethod === 'Bkash' && document.getElementById('co-payment').disabled;
+  if (paymentMethod && !isPreOrder) {
+    const payNow = paymentMethod === 'Bkash' ? total : delivery;
+    const dueAmount = paymentMethod === 'Bkash' ? 0 : (qty * unit);
+    document.getElementById('co-pay-now').value = payNow.toFixed(2);
+    document.getElementById('co-due-amount').value = dueAmount.toFixed(2);
+    document.getElementById('co-pay-now').style.display = 'block';
+    document.getElementById('co-due-amount').style.display = 'block';
+  } else if (!isPreOrder) {
+    document.getElementById('co-pay-now').style.display = 'none';
+    document.getElementById('co-due-amount').style.display = 'none';
+  }
 }
 
 function handlePaymentChange(e) {
@@ -229,12 +257,19 @@ function handlePaymentChange(e) {
     note.textContent = '';
     paymentNumberInput.value = '';
   }
+  updateTotalInModal();
 }
 
 async function submitCheckoutOrder(e) {
   e.preventDefault();
   const btn = document.getElementById('place-order-btn');
   btn.disabled = true;
+
+  if (!document.getElementById('co-policy').checked) {
+    alert('Please agree to the order policy.');
+    btn.disabled = false;
+    return;
+  }
 
   const productId = document.getElementById('co-product-id').value;
   const qty = Number(document.getElementById('co-qty').value);
@@ -250,7 +285,7 @@ async function submitCheckoutOrder(e) {
     btn.disabled = false;
     return;
   }
-  if (qty > available) {
+  if (qty > available && available !== -1) {
     alert(`Quantity exceeds available stock of ${available}.`);
     btn.disabled = false;
     return;
@@ -279,6 +314,8 @@ async function submitCheckoutOrder(e) {
     quantity: qty,
     deliveryFee: delivery,
     total,
+    paid: Number(document.getElementById('co-pay-now').value) || 0,
+    due: Number(document.getElementById('co-due-amount').value) || 0,
     customerName: document.getElementById('co-name').value.trim(),
     phone: document.getElementById('co-phone').value.trim(),
     address: document.getElementById('co-address').value.trim(),
@@ -312,24 +349,21 @@ async function submitCheckoutOrder(e) {
       }
 
       const currentStock = Number(productSnap.data().stock);
-      if (currentStock !== -1 && currentStock < qty) { // Allow pre-orders (stock = -1) to bypass stock check
+      if (currentStock !== -1 && currentStock < qty && productSnap.data().availability !== 'Pre Order') {
         throw new Error(`Insufficient stock. Only ${currentStock} available.`);
       }
 
-      if (currentStock !== -1) { // Only update stock if not a pre-order
+      if (currentStock !== -1 && productSnap.data().availability !== 'Pre Order') {
         const newStock = currentStock - qty;
         console.log('Updating stock for product:', productId, 'New stock:', newStock); // Debug log
         transaction.update(productRef, { stock: Number(newStock) });
       }
 
-      // Create order
-      const orderRef = doc(collection(db, 'orders'));
-      transaction.set(orderRef, orderData);
+      await addDoc(collection(db, 'orders'), orderData);
     });
 
-    alert('Order placed successfully! Txn ID: ' + orderData.transactionId);
+    alert('Order placed successfully!');
     closeCheckoutModal();
-    displayProducts();
   } catch (err) {
     console.error('Error placing order:', err);
     alert('Error placing order: ' + err.message);
@@ -363,10 +397,11 @@ async function addProduct(e) {
     category: form['add-category'].value,
     color: form['add-color'].value.trim(),
     stock: Number(stockStr),
+    availability: form['add-availability'].value,
     description: form['add-desc'].value.trim()
   };
 
-  if (!data.name || (typeof data.price === 'undefined' || data.price === null) || !data.image || !data.category) {
+  if (!data.name || (typeof data.price === 'undefined' || data.price === null) || !data.image || !data.category || !data.availability) {
     alert('Please fill required fields.');
     return;
   }
@@ -401,7 +436,8 @@ async function renderDataTable() {
     { key: 'category', editable: true },
     { key: 'color', editable: true },
     { key: 'discount', editable: true },
-    { key: 'stock', editable: true }
+    { key: 'stock', editable: true },
+    { key: 'availability', editable: true }
   ];
 
   products.forEach(p => {
@@ -444,10 +480,16 @@ async function renderDataTable() {
             return;
           }
           updateValue = Number(val);
+        } else if (col.key === 'availability') {
+          if (!['Ready', 'Pre Order', 'Upcoming'].includes(val)) {
+            alert('Availability must be Ready, Pre Order, or Upcoming.');
+            e.target.textContent = p[col.key] != null ? String(p[col.key]) : '';
+            return;
+          }
         }
 
         await updateProductField(p.id, col.key, updateValue);
-        if (col.key === 'stock' || col.key === 'price') {
+        if (col.key === 'stock' || col.key === 'price' || col.key === 'availability') {
           const cur = (await loadProducts()).find(x => x.id === p.id);
           tr.querySelector('td[data-status="1"]').textContent = computeStatus(cur);
         }
@@ -509,8 +551,8 @@ async function renderDataTable() {
 }
 
 function computeStatus(p) { 
-  if (p.price === 'TBA') return 'Upcoming';
-  if (Number(p.stock) === -1) return 'Pre Order';
+  if (p.availability === 'Upcoming') return 'Upcoming';
+  if (p.availability === 'Pre Order') return 'Pre Order';
   return Number(p.stock) > 0 ? 'In Stock' : 'Out of Stock'; 
 }
 
@@ -563,7 +605,8 @@ async function renderOrdersTable() {
       o.color,
       o.quantity,
       '৳' + Number(o.deliveryFee).toFixed(2),
-      '৳' + Number(o.total).toFixed(2),
+      '৳' + Number(o.paid).toFixed(2),
+      '৳' + Number(o.due).toFixed(2),
       o.customerName,
       o.phone,
       o.address,
@@ -606,7 +649,7 @@ async function renderOrdersTable() {
     const detailsRow = document.createElement('tr');
     detailsRow.className = 'details-row';
     const detailsCell = document.createElement('td');
-    detailsCell.colSpan = 12; // Span across toggle, main columns, and status
+    detailsCell.colSpan = 14; // Span across toggle, main columns, and status
     detailsCell.className = 'details-content';
 
     const unitPriceCell = document.createElement('div');
