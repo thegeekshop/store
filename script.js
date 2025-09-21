@@ -130,7 +130,7 @@ function createProductCard(p) {
     <p class="desc">${p.description || ''}</p>
     <div class="order-row">
       ${isPreOrder ? `<button class="preorder-btn">Pre Order</button>` : `<button ${isOOS || isUpcoming ? 'disabled' : ''} data-id="${p.id}" class="order-btn">Order</button>`}
-      <a href="https://m.me/thegeek.shop0" class="messenger-btn"><i class="fa-brands fa-facebook-messenger"></i></a>
+      <a href="https://m.me/thegeek.shop0" class="messenger-btn"><i class="fa-brands fa-facebook-messenger">&#xf39f;</i></a>
     </div>
   `;
 
@@ -744,4 +744,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Status page
   setupStatusForm();
 });
+
 
