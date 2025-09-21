@@ -44,23 +44,32 @@ src="https://www.facebook.com/tr?id=655776497078930&ev=PageView&noscript=1"
     </nav>
   </header>
 
-  <div class="container">
+ <main class="container">
     <h1>Products</h1>
+
     <h2>New Added</h2>
     <div id="new-products" class="product-list new-hot-list"></div>
+
     <h2>Hot Deals</h2>
     <div id="hot-deals" class="product-list new-hot-list"></div>
+
     <h2>All Products</h2>
     <div id="all-products" class="product-list"></div>
+  </main>
+
+  <div id="image-viewer" class="image-viewer">
+    <button id="close-viewer" class="close-viewer">&times;</button>
+    <img id="viewer-img" src="" alt="">
   </div>
-   
+
   <div id="checkout-modal" class="modal">
-    <div class="modal-content card">
+    <div class="card modal-content">
       <div class="modal-header">
         <h2>Checkout</h2>
-        <button id="close-modal-btn" class="secondary">Close</button>
+        <button id="close-modal-btn">Close</button>
       </div>
       <form id="checkout-form" class="form">
+        <input type="hidden" id="co-product-id">
         <div class="row">
           <div>
             <label>Product Name</label>
@@ -75,13 +84,12 @@ src="https://www.facebook.com/tr?id=655776497078930&ev=PageView&noscript=1"
           <div>
             <label>Price (tk)</label>
             <input id="co-price" readonly>
-            <input id="co-product-id" type="hidden">
-            <input id="co-unit-price-raw" type="hidden">
-            <input id="co-available-stock" type="hidden">
+            <input type="hidden" id="co-unit-price-raw">
+            <input type="hidden" id="co-available-stock">
           </div>
           <div>
             <label>Quantity</label>
-            <input id="co-qty" type="number" min="1" required>
+            <input id="co-qty" type="number" min="1" value="1">
           </div>
         </div>
         <div class="row">
@@ -119,21 +127,36 @@ src="https://www.facebook.com/tr?id=655776497078930&ev=PageView&noscript=1"
           </div>
           <div>
             <label>Pay to (Send money)</label>
-            <input id="co-payment-number" value="This text is read-only" readonly >
+            <input id="co-payment-number" readonly>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Pay Now (tk)</label>
+            <input id="co-pay-now" readonly>
+          </div>
+          <div>
+            <label>Due Amount (tk)</label>
+            <input id="co-due-amount" readonly>
           </div>
         </div>
         <div>
           <label>Transaction ID</label>
           <input id="co-txn">
         </div>
-        <p id="co-note" class="muted"></p>
+        <div>
+          <label>
+            <input type="checkbox" id="co-policy" required>
+            I agree to the <a href="status.html">Order Policy</a>
+          </label>
+        </div>
+        <div>
+          <p id="co-note" class="muted"></p>
+        </div>
         <button id="place-order-btn" type="submit">Place Order</button>
       </form>
     </div>
-  </div> <div class="image-viewer" id="image-viewer">
-        <button id="close-viewer" class="close-viewer">×</button>
-        <img id="viewer-img" src="" alt="Zoomed Image">
-    </div>
+  </div>
 <footer style="background-color: #e8e8ff; padding: 20px; text-align: center; height: 90px; color:  #000000; font-family: Arial, sans-serif;">
   <div>
     <a href="https://www.facebook.com/thegeek.shop0" target="_blank" style="margin: 0 10px;">
@@ -151,6 +174,7 @@ src="https://www.facebook.com/tr?id=655776497078930&ev=PageView&noscript=1"
 </footer>
 </body>
 </html>
+
 
 
 
