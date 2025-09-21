@@ -26,9 +26,10 @@
     </nav>
   </header>
 
-  <div class="container">
-    <div id="login-panel">
-      <h1>Admin Login</h1>
+ 
+  <main class="container">
+    <div id="login-panel" class="card" style="display: none;">
+      <h2>Admin Login</h2>
       <form id="login-form" class="form">
         <div>
           <label>Email</label>
@@ -42,9 +43,9 @@
       </form>
     </div>
 
-    <div id="admin-panel" style="display: none;">
+    <div id="admin-panel" class="card" style="display: none;">
       <div class="panel-header">
-        <h1>Admin Panel</h1>
+        <h2>Admin Panel</h2>
         <button onclick="logoutAdmin()">Logout</button>
       </div>
 
@@ -63,7 +64,7 @@
         <div class="row">
           <div>
             <label>Discount (tk)</label>
-            <input id="add-discount">
+            <input id="add-discount" value="0">
           </div>
           <div>
             <label>Image URL</label>
@@ -87,7 +88,15 @@
         <div class="row">
           <div>
             <label>Stock</label>
-            <input id="add-stock" type="number" min="0">
+            <input id="add-stock" type="number" value="0">
+          </div>
+          <div>
+            <label>Availability</label>
+            <select id="add-availability" required>
+              <option value="Ready">Ready to Order</option>
+              <option value="Pre Order">Pre Order</option>
+              <option value="Upcoming">Upcoming</option>
+            </select>
           </div>
         </div>
         <div>
@@ -102,13 +111,14 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th></th> <!-- Toggle column -->
+              <th></th>
               <th>Name</th>
               <th>Price</th>
               <th>Category</th>
               <th>Color</th>
               <th>Discount (tk)</th>
               <th>Stock</th>
+              <th>Availability</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -128,7 +138,8 @@
               <th>Color</th>
               <th>Qty</th>
               <th>Delivery</th>
-              <th>Total</th>
+              <th>Paid</th>
+              <th>Due</th>
               <th>Name</th>
               <th>Phone</th>
               <th>Address</th>
@@ -141,8 +152,9 @@
         </table>
       </div>
     </div>
-  </div>
-
+  </main>
+</body>
 
 </html>
+
 
