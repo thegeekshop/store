@@ -8,10 +8,13 @@ export const firebaseConfig = {
 };
 
 
+
 export const BKASH_NUMBER = '01960788862 (Personal)'; // Replace with your Bkash number
 export const COD_NUMBER = '01960788862 (Personal)'; // Replace with your COD contact number
 
 export const DELIVERY_FEE = 70; // Default delivery fee
+
+
 
 
 

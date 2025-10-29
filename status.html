@@ -4,41 +4,107 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Order Status</title>
- <link rel="icon" type="image/x-icon" href="logo t.png"> 
+  <link rel="icon" type="image/x-icon" href="logo t.png">
   <link rel="stylesheet" href="style.css">
-  <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
-    import { getAuth } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-    import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
-  </script>
   <script type="module" src="script.js"></script>
+  <style>
+    .orders-grid {display:grid;grid-template-columns:1fr;gap:16px;margin-top:16px;}
+   
+    .order-status-card {
+      display:flex;
+      padding:16px;
+      border-radius:12px;
+      background:var(--card);
+      border:1px solid var(--glass-border);
+      box-shadow:0 2px 8px rgba(0,0,0,.05);
+      gap:16px;
+      align-items:flex-start;
+    }
+    /* ---------- LEFT: PRODUCT DETAILS ---------- */
+    .order-status-left {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.95rem;
+    }
+    .muted { color: var(--muted); }
+    .price-line { font-weight: 600; color: var(--accent); }
+    /* ---------- RIGHT: FULL STATUS TIMELINE ---------- */
+    .order-status-right {
+      flex: 0 0 160px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      width: 100%;
+    }
+    .status-circle {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 0.75rem;
+      color: white;
+      flex-shrink: 0;
+    }
+    .status-green { background: #4caf50; }
+    .status-red { background: #d32f2f; }
+    .status-grey { background: #9ca3af; }
+
+    /* CANCELLED STATE: Only Cancelled = RED, others = GRAY */
+    .order-cancelled .status-item {
+      color: #9ca3af;
+    }
+    .order-cancelled .status-item.cancelled {
+      color: #ef4444 !important;
+    }
+    .order-cancelled .status-circle {
+      background: #9ca3af !important;
+    }
+    .order-cancelled .status-circle.cancelled {
+      background: #d32f2f !important;
+    }
+
+    @media (max-width: 768px) {
+      .order-status-card { flex-direction: column; }
+      .order-status-right { align-items: stretch; }
+    }
+  </style>
 </head>
 <body>
 <header class="site-header">
-     <nav>
-      <a href="index.html" class="logo">
-        <img src="logo.png" alt="The Geek Shop Logo" style="height: 40px;">
-      </a>
-      <div class="nav-links">
-        <a href="index.html">Products</a>
-        <a href="status.html">Order Status</a>
-        <a href="admin.html">Admin</a>
-      </div>
-    </nav>
-  </header>
-
-  <div class="container">
-    <h1>Order Status</h1>
-    <form id="status-form" class="form">
-      <div>
-        <label>Transaction ID</label>
-        <input id="txn-id" required>
-      </div>
-      <button type="submit">Check Status</button>
-    </form>
-  </div>
-
-    <section class="notice-section" style="display: flex; gap: 20px; align-items: flex-start;">
+  <nav>
+    <a href="index.html" class="logo"><img src="logo.png" alt="Logo" style="height:40px;"></a>
+    <div class="nav-links">
+      <a href="index.html">Products</a>
+      <a href="status.html">Order Status</a>
+      <a href="admin.html">Admin</a>
+    </div>
+  </nav>
+</header>
+<div class="container">
+  <h1>Order Status</h1>
+  <form id="status-form" class="form">
+    <div>
+      <label>Phone Number</label>
+      <input id="phone-input" type="tel" placeholder="e.g. 01XXXXXXXXX" required>
+    </div>
+    <button type="submit">Check Orders</button>
+  </form>
+  <div id="order-result" class="order-result"></div>
+</div>
+ <section class="notice-section" style="display: flex; gap: 20px; align-items: flex-start;">
   <!-- Left card -->
   <div class="notice-card card" style="flex: 1; text-align: left;">
     <h3>📢 Important Notice</h3>
@@ -125,11 +191,110 @@
  
   <p>&copy; All rights reserved by The Geek Shop</p>
 </footer>
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+  import { getFirestore, collection, query, where, getDocs, orderBy } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+  import { firebaseConfig } from './config.js';
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const statusOrder = ['Pending', 'Processing', 'Dispatched', 'Delivered', 'Cancelled'];
+
+  document.getElementById('status-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const phone = document.getElementById('phone-input').value.trim();
+    if (!phone) return;
+
+    const result = document.getElementById('order-result');
+    result.innerHTML = '<p style="text-align:center;color:var(--muted);">Loading...</p>';
+    result.classList.add('show');
+
+    try {
+      const q = query(collection(db, 'orders'), where('phone', '==', phone), orderBy('timeISO', 'desc'));
+      const snap = await getDocs(q);
+      result.innerHTML = '';
+      if (snap.empty) {
+        result.innerHTML = `<p style="text-align:center;color:var(--muted);">No orders for ${phone}</p>`;
+        return;
+      }
+
+      const prodSnap = await getDocs(collection(db, 'products'));
+      const prodMap = {}; 
+      prodSnap.docs.forEach(d => { prodMap[d.id] = d.data(); });
+
+      const grid = document.createElement('div');
+      grid.className = 'orders-grid';
+
+      snap.docs.forEach(doc => {
+        const order = doc.data();
+        const product = prodMap[order.productId] || {};
+        const isPreOrder = product.availability === 'Pre Order';
+        const delivery = isPreOrder ? '20–40 days' : '2–5 days';
+        const avail = isPreOrder ? 'Pre-Order' : 'In Stock';
+        const curStat = order.status;
+        const curIdx = statusOrder.indexOf(curStat);
+        const cancelled = curStat === 'Cancelled';
+
+        const card = document.createElement('div');
+        card.className = `card order-status-card ${cancelled ? 'order-cancelled' : ''}`;
+
+        // Build status timeline
+        let statusHTML = '';
+        statusOrder.forEach((st, i) => {
+          const isCurrent = i === curIdx;
+          const isCompleted = i < curIdx && !cancelled;
+          const isCancelled = st === 'Cancelled' && cancelled;
+
+          let icon = '';
+          let colorClass = 'status-grey';
+          let textColor = '#9ca3af';
+          let itemClass = '';
+
+          if (isCancelled) {
+            icon = '✗';           // Real Cross symbol
+            colorClass = 'status-red cancelled';
+            textColor = '#ef4444';
+            itemClass = 'cancelled';
+          } else if (isCompleted || (isCurrent && !cancelled)) {
+            icon = '✓';       // Real Checkmark symbol
+            colorClass = 'status-green';
+            textColor = '#22c55e';
+          }
+
+          statusHTML += `
+            <div class="status-item ${itemClass}" style="color:${textColor};">
+              <div class="status-circle ${colorClass}">${icon}</div>
+              <span>${st}</span>
+            </div>`;
+        });
+
+        card.innerHTML = `
+          <div class="order-status-left">
+            <div><strong>${order.productName}</strong></div>
+            <div class="muted">Color: ${order.color || '—'}</div>
+            <div class="muted">Quantity: ${order.quantity}</div>
+            <div class="price-line">
+              Paid: ৳${order.paid}
+              ${order.due > 0 ? `<span style="color:#d32f2f"> (Due: ৳${order.due})</span>` : ''}
+            </div>
+            <div class="muted">${avail}</div>
+            <div class="muted">Est. Delivery: <strong>${delivery}</strong></div>
+            <div class="muted">Ordered on: ${new Date(order.timeISO).toLocaleDateString()}</div>
+          </div>
+          <div class="order-status-right">
+            ${statusHTML}
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      result.appendChild(grid);
+    } catch (err) {
+      console.error(err);
+      result.innerHTML = `<p style="color:var(--danger);">Error: ${err.message}</p>`;
+    }
+  });
+</script>
 </body>
-
 </html>
-
-
-
-
 

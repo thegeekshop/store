@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Category</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="logo">Keyboard Shop</div>
+    <nav class="nav">
+      <a href="index.html">Home</a>
+      <a href="cart.html">Cart</a>
+      <a href="login.html">Login/Register</a>
+      <a id="adminLink" href="admin.html" style="display:none;">Admin</a>
+    </nav>
+  </header>
+  <section id="categoryProducts" style="display: flex; flex-wrap: wrap; justify-content: space-around;"></section>
+  <footer>© 2025 Keyboard Shop</footer>
+  <script type="module" src="js/firebase.js"></script>
+  <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/products.js"></script>
+  <script type="module" src="js/cart.js"></script>
+  <script type="module">
+    import { loadCategoryProducts } from './js/products.js';
+    loadCategoryProducts();
+  </script>
+</body>
+</html>
