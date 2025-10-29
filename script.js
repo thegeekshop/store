@@ -101,6 +101,9 @@ function createProductCard(p, products) {
   const finalPrice = hasDiscount ? (price - Number(p.discount)) : price;
   const images = p.images || [];
 
+  // Auto In Stock badge
+  const isInStock = Number(p.stock) > 0 && p.availability === 'Ready';
+
   // Generate slug
   const sameName = products.filter(other => other.name.toLowerCase() === p.name.toLowerCase());
   let slug = p.name.toLowerCase().replace(/\s+/g, '-');
@@ -113,11 +116,11 @@ function createProductCard(p, products) {
   card.innerHTML = `
     <img src="${images[0] || ''}" alt="${p.name}" onerror="this.src=''; this.alt='Image not available';">
     <div class="badges">
-      ${p.category === 'new' ? `<span class="badge new">IN STOCK</span>` : ``}
-      ${p.category === 'hot' ? `<span class="badge hot">HOT DEAL</span>` : ``}
-      ${isOOS ? `<span class="badge oos">OUT OF STOCK</span>` : ``}
-      ${isUpcoming ? `<span class="badge upcoming">UPCOMING</span>` : ``}
-      ${isPreOrder ? `<span class="badge preorder">PRE ORDER</span>` : ``}
+      ${p.hotDeal ? `<span class="badge hot">HOT DEAL</span>` : ''}
+      ${isInStock ? `<span class="badge new">IN STOCK</span>` : ''}
+      ${isOOS ? `<span class="badge oos">OUT OF STOCK</span>` : ''}
+      ${isUpcoming ? `<span class="badge upcoming">UPCOMING</span>` : ''}
+      ${isPreOrder ? `<span class="badge preorder">PRE ORDER</span>` : ''}
     </div>
     <h3>${p.name}</h3>
     <div class="muted">Color: ${p.color || '-'}</div>
@@ -170,7 +173,6 @@ async function initProductsPage() {
     list.appendChild(createShimmerCard());
   }
   const products = await loadProducts();
-  // ---- fix: clear shimmer before rendering real cards
   list.innerHTML = '';
   const filtered = category ? products.filter(p => p.category === category) : products;
   filtered.forEach(p => list.appendChild(createProductCard(p, products)));
@@ -268,11 +270,13 @@ async function initProductPage() {
   const hasDiscount = Number(product.discount) > 0;
   const price = Number(product.price) || 0;
   const finalPrice = hasDiscount ? (price - Number(product.discount)) : price;
+  const isInStock = Number(product.stock) > 0 && product.availability === 'Ready';
+
   priceEl.innerHTML = isUpcoming ? 'TBA' : `${hasDiscount ? `<s>৳${price.toFixed(2)}</s> ` : ''}৳${finalPrice.toFixed(2)}`;
 
   badgesEl.innerHTML = `
-    ${product.category === 'new' ? `<span class="badge new">NEW</span>` : ''}
-    ${product.category === 'hot' ? `<span class="badge hot">HOT</span>` : ''}
+    ${product.hotDeal ? `<span class="badge hot">HOT DEAL</span>` : ''}
+    ${isInStock ? `<span class="badge new">IN STOCK</span>` : ''}
     ${!isUpcoming && Number(product.stock) <= 0 && product.availability !== 'Pre Order' ? `<span class="badge oos">OUT OF STOCK</span>` : ''}
     ${isUpcoming ? `<span class="badge upcoming">UPCOMING</span>` : ''}
     ${product.availability === 'Pre Order' ? `<span class="badge preorder">PRE ORDER</span>` : ''}
@@ -408,7 +412,7 @@ async function openCheckoutModal(productId, isPreOrder = false) {
   document.getElementById('co-delivery').dataset.fee = deliveryFee;
 
   if (isPreOrder) {
-    const preOrderPrice = Math.round((unit * 0.25) / 5) * 5; // 25% rounded to nearest 5
+    const preOrderPrice = Math.round((unit * 0.25) / 5) * 5;
     document.getElementById('co-pay-now').value = preOrderPrice.toFixed(2);
     document.getElementById('co-due-amount').value = (unit - preOrderPrice + deliveryFee).toFixed(2);
     document.getElementById('co-payment-number').value = BKASH_NUMBER;
@@ -427,7 +431,6 @@ function closeCheckoutModal() {
   document.getElementById('checkout-modal').classList.remove('show');
 }
 
-// ---- ONE SINGLE handlePaymentChange (the second copy was removed) ----
 function handlePaymentChange(e) {
   const method = e.target.value;
   const payNowEl = document.getElementById('co-pay-now');
@@ -582,7 +585,8 @@ async function addProduct(e) {
     color: document.getElementById('add-color').value.trim(),
     stock: Number(document.getElementById('add-stock').value) || 0,
     availability: document.getElementById('add-availability').value,
-    description: document.getElementById('add-desc').value.trim()
+    description: document.getElementById('add-desc').value.trim(),
+    hotDeal: !!document.getElementById('add-hotdeal')?.checked
   };
   try {
     await addDoc(collection(db, 'products'), data);
@@ -653,13 +657,24 @@ async function renderDataTable() {
           }
         }
         await updateProductField(p.id, col.key, updateValue);
-        if (col.key === 'stock' || col.key === 'price' || col.key === 'availability') {
+        if (col.key === 'stock' || col.key === 'availability') {
           const cur = (await loadProducts()).find(x => x.id === p.id);
           tr.querySelector('td[data-status="1"]').textContent = computeStatus(cur);
         }
       });
       tr.appendChild(td);
     });
+
+    // Hot Deal Checkbox
+    const tdHotDeal = document.createElement('td');
+    const hotDealInput = document.createElement('input');
+    hotDealInput.type = 'checkbox';
+    hotDealInput.checked = !!p.hotDeal;
+    hotDealInput.addEventListener('change', async () => {
+      await updateProductField(p.id, 'hotDeal', hotDealInput.checked);
+    });
+    tdHotDeal.appendChild(hotDealInput);
+    tr.appendChild(tdHotDeal);
 
     const tdStatus = document.createElement('td');
     tdStatus.dataset.status = '1';
@@ -680,7 +695,7 @@ async function renderDataTable() {
     const detailsRow = document.createElement('tr');
     detailsRow.className = 'details-row';
     const detailsCell = document.createElement('td');
-    detailsCell.colSpan = cols.length + 3;
+    detailsCell.colSpan = cols.length + 4;
     detailsCell.className = 'details-content';
 
     const imagesCell = document.createElement('div');
