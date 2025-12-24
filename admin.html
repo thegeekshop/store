@@ -26,7 +26,6 @@
     </nav>
   </header>
 
- 
   <main class="container">
     <div id="login-panel" class="card" style="display: none;">
       <h2>Admin Login</h2>
@@ -101,11 +100,24 @@
           </div>
         </div>
         <div>
-  <label><input type="checkbox" id="add-hotdeal"> Hot Deal</label>
-</div>
+          <label><input type="checkbox" id="add-hotdeal"> Hot Deal</label>
+        </div>
         <div>
-          <label>Description</label>
+          <label>Specification (shown next to price)</label>
           <textarea id="add-desc"></textarea>
+        </div>
+        <div>
+          <label>Description (full section below images)</label>
+          <textarea id="add-detailed-desc"></textarea>
+        </div>
+        <h3>SEO Optimization</h3>
+        <div>
+          <label>Meta Title</label>
+          <input id="add-meta-title" type="text" placeholder="e.g. GMK Dracula Keycaps - The Geek Shop">
+        </div>
+        <div>
+          <label>Meta Description</label>
+          <textarea id="add-meta-desc" placeholder="Short SEO description (150-160 chars)"></textarea>
         </div>
         <button type="submit">Add Product</button>
       </form>
@@ -159,8 +171,4 @@
     </div>
   </main>
 </body>
-
-
 </html>
-
-
