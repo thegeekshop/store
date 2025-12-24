@@ -1,10 +1,10 @@
+<DOCUMENT filename="product.html">
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="" id="meta-description">
-  <title></title>
+  <title>Product</title>
   <link rel="icon" type="image/x-icon" href="logo t.png"> 
   <link rel="canonical" id="canonical-link" href="">
   <link rel="stylesheet" href="style.css">
@@ -14,6 +14,7 @@
     import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
   </script>
   <script type="module" src="script.js"></script>
+
 </head>
 <body>
   <header class="site-header">
@@ -29,7 +30,7 @@
     </nav>
   </header>
 
-  <main class="container">
+ <main class="container">
     <div id="product-section" class="product-detail">
       <div class="product-images">
         <img id="main-image" src="" alt="">
@@ -40,15 +41,10 @@
         <div id="product-color" class="muted"></div>
         <div id="product-price" class="price"></div>
         <div id="product-badges" class="badges"></div>
-        <p id="product-spec"></p>
+        <p id="product-desc"></p>
         <div id="order-row" class="order-row"></div>
       </div>
     </div>
-
-    <section class="product-description-section">
-      <h2>Description</h2>
-      <div id="product-detailed-desc" class="description-content"></div>
-    </section>
 
     <h2>Other Products</h2>
     <div id="other-products" class="product-list new-hot-list"></div>
@@ -154,20 +150,21 @@
       </form>
     </div>
   </div>
-
-  <footer style="background-color: #e8e8ff; padding: 20px; text-align: center; height: 90px; color: #000000; font-family: Arial, sans-serif;">
-    <div>
-      <a href="https://www.facebook.com/thegeek.shop0" target="_blank" style="margin: 0 10px;">
-        <img src="facebook.png" alt="Facebook" style="width: 30px; height: 30px;">
-      </a>
-      <a href="https://www.instagram.com/thegeek.shop0" target="_blank" style="margin: 0 10px;">
-        <img src="instagram.png" alt="Instagram" style="width: 30px; height: 30px;">
-      </a>
-      <a href="https://wa.me/01960902526" target="_blank" style="margin: 0 10px;">
-        <img src="whatsapp.png" alt="WhatsApp" style="width: 30px; height: 30px;">
-      </a>
-    </div>
-    <p>&copy; All rights reserved by The Geek Shop</p>
-  </footer>
+<footer style="background-color: #e8e8ff; padding: 20px; text-align: center; height: 90px; color:  #000000; font-family: Arial, sans-serif;">
+  <div>
+    <a href="https://www.facebook.com/thegeek.shop0" target="_blank" style="margin: 0 10px;">
+      <img src="facebook.png" alt="Facebook" style="width: 30px; height: 30px;">
+    </a>
+    <a href="https://www.instagram.com/thegeek.shop0" target="_blank" style="margin: 0 10px;">
+      <img src="instagram.png" alt="Instagram" style="width: 30px; height: 30px;">
+    </a>
+        <a href="https://wa.me/01960902526" target="_blank" style="margin: 0 10px;">
+      <img src="whatsapp.png" alt="Instagram" style="width: 30px; height: 30px;">
+    </a>
+  </div>
+ 
+  <p>&copy; All rights reserved by The Geek Shop</p>
+</footer>
 </body>
+
 </html>
