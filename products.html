@@ -39,7 +39,7 @@ src="https://www.facebook.com/tr?id=655776497078930&ev=PageView&noscript=1"
       <div class="nav-links">
         <a href="products.html">Products</a>
         <a href="status.html">Order Status</a>
-        <a href="admin.html">Admin</a>
+        <a id="cart-link" style="cursor: pointer;">Cart (<span id="cart-count">0</span>)</a>
       </div>
     </nav>
   </header>
@@ -55,6 +55,68 @@ src="https://www.facebook.com/tr?id=655776497078930&ev=PageView&noscript=1"
     <img id="viewer-img" src="" alt="">
   </div>
 
+  <!-- Cart Slider -->
+  <div id="cart-slider" class="cart-slider">
+    <button id="close-cart" class="close-viewer">&times;</button>
+    <h2>Shopping Cart</h2>
+    <div id="cart-items" class="cart-items"></div>
+    <div id="cart-total" class="cart-total"><strong>Total: ৳0</strong></div>
+    <button id="checkout-cart" class="checkout-cart-btn">Checkout</button>
+    <div id="cart-empty" class="muted" style="text-align:center; padding:20px; display:none;">Your cart is empty</div>
+  </div>
+
+
+  <!-- Cart Slider -->
+  <div id="cart-slider" class="cart-slider">
+    <button id="close-cart" class="close-viewer">&times;</button>
+    <h2>Shopping Cart</h2>
+    <div id="cart-items" class="cart-items"></div>
+    <div id="cart-total" class="cart-total"><strong>Total: ৳0</strong></div>
+    <button id="checkout-cart" class="checkout-cart-btn">Checkout</button>
+    <div id="cart-empty" class="muted" style="text-align:center; padding:20px; display:none;">Your cart is empty</div>
+  </div>
+
+  <!-- Cart Checkout Modal -->
+  <div id="cart-checkout-modal" class="modal">
+    <div class="card modal-content">
+      <div class="modal-header">
+        <h2>Checkout (Cart)</h2>
+        <button id="cart-close-modal-btn">Close</button>
+      </div>
+      <form id="cart-checkout-form" class="form">
+        <div id="cart-co-items"></div>
+        <div class="row">
+          <div><label>Delivery Fee</label><input id="cart-co-delivery" readonly></div>
+          <div><label>Total Amount</label><input id="cart-co-total" readonly></div>
+        </div>
+        <div class="row">
+          <div><label>Name</label><input id="cart-co-name" required></div>
+          <div><label>Phone</label><input id="cart-co-phone" type="tel" required></div>
+        </div>
+        <div><label>Address</label><textarea id="cart-co-address" required></textarea></div>
+        <div class="row">
+          <div><label>Payment Method</label>
+            <select id="cart-co-payment" required>
+              <option value="">Select</option>
+              <option value="Cash on Delivery">Cash on Delivery</option>
+              <option value="Bkash">Bkash</option>
+            </select>
+          </div>
+          <div><label>Pay to</label><input id="cart-co-payment-number" readonly></div>
+        </div>
+        <div class="row">
+          <div><label>Pay Now (tk)</label><input id="cart-co-pay-now" readonly></div>
+          <div><label>Due Amount (tk)</label><input id="cart-co-due-amount" readonly></div>
+        </div>
+        <div><label>Transaction ID</label><input id="cart-co-txn"></div>
+        <div><label><input type="checkbox" id="cart-co-policy" required> I agree to the <a href="status.html">Order Policy</a></label></div>
+          <p id="cart-co-note" class="muted"></p>
+        <button id="cart-place-order-btn" type="submit">Place Order</button>
+      </form>
+    </div>
+  
+  </div>
+
 <footer style="background-color: #e8e8ff; padding: 20px; text-align: center; height: 90px; color:  #000000; font-family: Arial, sans-serif;">
   <div>
     <a href="https://www.facebook.com/thegeek.shop0" target="_blank" style="margin: 0 10px;">
@@ -63,13 +125,13 @@ src="https://www.facebook.com/tr?id=655776497078930&ev=PageView&noscript=1"
     <a href="https://www.instagram.com/thegeek.shop0" target="_blank" style="margin: 0 10px;">
       <img src="instagram.png" alt="Instagram" style="width: 30px; height: 30px;">
     </a>
-        <a href="https://wa.me/01960902526" target="_blank" style="margin: 0 10px;">
-      <img src="whatsapp.png" alt="Instagram" style="width: 30px; height: 30px;">
+    <a href="https://wa.me/01960902526" target="_blank" style="margin: 0 10px;">
+      <img src="whatsapp.png" alt="WhatsApp" style="width: 30px; height: 30px;">
     </a>
   </div>
- 
   <p>&copy; All rights reserved by The Geek Shop</p>
 </footer>
 </body>
 
 </html>
+
