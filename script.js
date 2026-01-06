@@ -466,6 +466,7 @@ async function submitCheckoutOrder(e) {
   const productId = document.getElementById('co-product-id').value;
   const qty = Number(document.getElementById('co-qty').value);
   const available = Number(document.getElementById('co-available-stock').value);
+
   if (!productId) { alert('Product ID is missing.'); btn.disabled = false; return; }
   if (qty <= 0) { alert('Quantity must be at least 1.'); btn.disabled = false; return; }
   if (qty > available && available !== -1) { alert(`Quantity exceeds available stock of ${available}.`); btn.disabled = false; return; }
@@ -478,29 +479,38 @@ async function submitCheckoutOrder(e) {
 
   const total = (qty * unit) + delivery;
 
-  const currentProduct = products.find(p => p.id === productId);  // products is already loaded earlier
+  // === FIX: Load fresh products to get current availability ===
+  const products = await loadProducts();
+  const currentProduct = products.find(p => p.id === productId);
 
-const orderData = {
-  timeISO: new Date().toISOString(),
-  productId,
-  productName: document.getElementById('co-product-name').value,
-  color: document.getElementById('co-color').value,
-  unitPrice: unit,
-  quantity: qty,
-  deliveryFee: delivery,
-  total,
-  paid: Number(document.getElementById('co-pay-now').value) || 0,
-  due: Number(document.getElementById('co-due-amount').value) || 0,
-  customerName: document.getElementById('co-name').value.trim(),
-  phone: document.getElementById('co-phone').value.trim(),
-  address: document.getElementById('co-address').value.trim(),
-  paymentMethod: document.getElementById('co-payment').value,
-  paymentNumber: document.getElementById('co-payment-number').value.trim(),
-  transactionId: document.getElementById('co-txn').value.trim().toUpperCase(),
-  status: 'Pending',
-  wasPreOrder: currentProduct?.availability === 'Pre Order' 
-};
+  if (!currentProduct) {
+    alert('Product not found. Please refresh and try again.');
+    btn.disabled = false;
+    return;
+  }
 
+  const orderData = {
+    timeISO: new Date().toISOString(),
+    productId,
+    productName: document.getElementById('co-product-name').value,
+    color: document.getElementById('co-color').value,
+    unitPrice: unit,
+    quantity: qty,
+    deliveryFee: delivery,
+    total,
+    paid: Number(document.getElementById('co-pay-now').value) || 0,
+    due: Number(document.getElementById('co-due-amount').value) || 0,
+    customerName: document.getElementById('co-name').value.trim(),
+    phone: document.getElementById('co-phone').value.trim(),
+    address: document.getElementById('co-address').value.trim(),
+    paymentMethod: document.getElementById('co-payment').value,
+    paymentNumber: document.getElementById('co-payment-number').value.trim(),
+    transactionId: document.getElementById('co-txn').value.trim().toUpperCase(),
+    status: 'Pending',
+    wasPreOrder: currentProduct.availability === 'Pre Order'  // Now works!
+  };
+
+  // Validation
   if (!orderData.customerName || !orderData.phone || !orderData.address || !orderData.paymentMethod) {
     alert('Please fill all required fields.');
     btn.disabled = false;
@@ -525,8 +535,11 @@ const orderData = {
       if (currentStock !== -1 && productSnap.data().availability !== 'Pre Order') {
         transaction.update(productRef, { stock: currentStock - qty });
       }
-      await addDoc(collection(db, 'orders'), orderData);
+
+      const newOrderRef = doc(collection(db, 'orders'));
+      transaction.set(newOrderRef, orderData);
     });
+
     alert('Order placed successfully!');
     closeCheckoutModal();
   } catch (err) {
@@ -536,7 +549,6 @@ const orderData = {
     btn.disabled = false;
   }
 }
-
 // ====== PAGE INIT ======
 async function initHomePage() {
   const interestSection = document.getElementById('interest-products');
@@ -1388,6 +1400,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
 });
+
 
 
 
