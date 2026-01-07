@@ -293,7 +293,7 @@ function setupImageViewer() {
 
   if (!viewer || !viewerImg || !closeViewer) return;
 
-  document.querySelectorAll('.product-card img, .thumbnail, #main-image').forEach(img => {
+  document.querySelectorAll('.product-card img, #main-image').forEach(img => {
     img.style.cursor = 'pointer';
     img.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -1400,6 +1400,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
 });
+
 
 
 
