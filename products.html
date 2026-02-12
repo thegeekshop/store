@@ -46,6 +46,54 @@ src="https://www.facebook.com/tr?id=655776497078930&ev=PageView&noscript=1"
 
  <main class="container">
     <h1 id="products-title">Products</h1>
+<main class="container">
+  <div class="header-row" style="display: flex; justify-content: space-between; align-items: center;">
+    <h1 id="products-title">Products</h1>
+    <button id="filter-btn" class="filter-toggle-btn">Filters</button>
+  </div>
+  
+  <!-- Filter Sidebar -->
+  <div id="filter-sidebar" class="filter-sidebar">
+    <h2>Filters</h2>
+    <button id="close-filter" class="close-btn">&times;</button>
+    
+    <!-- Price Filter -->
+    <div class="filter-section">
+      <h3>Price Range</h3>
+      <div class="price-slider-container">
+        <input type="range" id="price-min-slider" min="0" max="10000" value="0">
+        <input type="range" id="price-max-slider" min="0" max="10000" value="10000">
+      </div>
+      <div class="price-inputs">
+        <input type="number" id="price-min-input" placeholder="Min" min="0">
+        <input type="number" id="price-max-input" placeholder="Max" min="0">
+      </div>
+    </div>
+    
+    <!-- Color Filter -->
+    <div class="filter-section" id="color-filter">
+      <h3>Color</h3>
+      <div id="color-options"></div> <!-- Checkboxes will be dynamically added -->
+    </div>
+    
+    <!-- Specs Filter (only for keycaps/keyboards) -->
+    <div class="filter-section" id="specs-filter" style="display: none;">
+      <h3>Specs</h3>
+      <div id="keys-options"></div>
+      <div id="print-options"></div>
+      <div id="layout-options"></div>
+      <div id="profile-options"></div>
+    </div>
+    
+    <!-- Buttons -->
+    <div class="filter-buttons">
+      <button id="apply-filter">Apply</button>
+      <button id="clear-filter">Clear</button>
+    </div>
+  </div>
+  
+  <div id="product-list" class="product-list"></div>
+</main>
     
     <div id="product-list" class="product-list"></div>
   </main>
