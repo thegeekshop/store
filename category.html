@@ -1,30 +1,491 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="dark" lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Category</title>
-  <link rel="stylesheet" href="css/style.css">
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>The Geek Shop | Central Admin Terminal</title>
+  <link rel="icon" type="image/x-icon" href="logo t.png"> 
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-bright": "#323949",
+            "surface-container": "#191f2f",
+            "on-error-container": "#ffdad6",
+            "on-tertiary-fixed-variant": "#404758",
+            "surface-variant": "#2e3545",
+            "tertiary": "#d8def3",
+            "surface-container-low": "#141b2b",
+            "inverse-on-surface": "#293040",
+            "on-primary-fixed": "#29074a",
+            "error-container": "#93000a",
+            "inverse-surface": "#dce2f7",
+            "error": "#ffb4ab",
+            "surface-container-highest": "#2e3545",
+            "on-primary-fixed-variant": "#573878",
+            "primary-fixed-dim": "#dbb8ff",
+            "surface": "#0c1322",
+            "primary-container": "#d8b4fe",
+            "surface-tint": "#dbb8ff",
+            "surface-container-high": "#232a3a",
+            "outline": "#968e9a",
+            "on-primary-container": "#604283",
+            "background": "#0c1322",
+            "outline-variant": "#4a454f",
+            "on-tertiary": "#293040",
+            "surface-container-lowest": "#070e1d",
+            "on-surface": "#dce2f7",
+            "primary": "#ecd7ff",
+            "tertiary-container": "#bcc2d7",
+            "on-tertiary-container": "#495061",
+            "on-tertiary-fixed": "#141b2b",
+            "on-error": "#690005",
+            "secondary-container": "#444558",
+            "on-secondary-fixed": "#181a2b",
+            "on-background": "#dce2f7",
+            "on-secondary-container": "#b3b3c9",
+            "on-secondary-fixed-variant": "#444558",
+            "on-surface-variant": "#cdc3d0",
+            "secondary": "#c4c5db",
+            "tertiary-fixed-dim": "#c0c6db",
+            "primary-fixed": "#efdbff",
+            "on-secondary": "#2d2f40",
+            "inverse-primary": "#6f5092",
+            "on-primary": "#3f2160",
+            "surface-dim": "#0c1322",
+            "secondary-fixed": "#e1e1f7",
+            "tertiary-fixed": "#dce2f7",
+            "secondary-fixed-dim": "#c4c5db"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "fontFamily": {
+            "headline": ["Space Grotesk"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          }
+        },
+      },
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .glass-panel {
+      background: rgba(25, 31, 47, 0.6);
+      backdrop-filter: blur(12px);
+    }
+    .signature-gradient {
+      background: linear-gradient(135deg, #ecd7ff 0%, #d8b4fe 100%);
+    }
+    .cyber-lattice {
+      background-image: radial-gradient(circle at 1px 1px, rgba(236, 215, 255, 0.03) 1px, transparent 0);
+      background-size: 40px 40px;
+    }
+    
+    /* Scrollbar engineering customization */
+    ::-webkit-scrollbar { height: 6px; width: 6px; }
+    ::-webkit-scrollbar-track { background: #0c1322; }
+    ::-webkit-scrollbar-thumb { background: #2e3545; border-radius: 10px; }
+
+    /* Match script.js inner functional selector inputs perfectly */
+    .admin-form input, .admin-form select, .admin-form textarea {
+      background-color: #191f2f;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem;
+      color: #dce2f7;
+      font-size: 0.875rem;
+      width: 100%;
+    }
+    .admin-form input:focus, .admin-form select:focus, .admin-form textarea:focus {
+      border-color: #dbb8ff;
+      outline: none;
+      box-shadow: 0 0 0 1px rgba(219, 184, 255, 0.2);
+    }
+    .admin-form label {
+      display: block;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      font-weight: 600;
+      margin-bottom: 0.375rem;
+    }
+
+    /* Core admin structural grid adjustments */
+    .table-wrapper {
+      overflow-x: auto;
+      background: rgba(25, 31, 47, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 1rem;
+    }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.8125rem;
+    }
+    .data-table th {
+      background: #141b2b;
+      padding: 1rem 1.25rem;
+      text-transform: uppercase;
+      font-size: 0.6875rem;
+      letter-spacing: 0.05em;
+      color: #64748b;
+      font-weight: 700;
+      border-b: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .data-table td {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      white-space: nowrap;
+    }
+    .data-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.01);
+    }
+  </style>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+    import { getAuth } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+    import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+  </script>
+  <script type="module" src="script.js"></script>
 </head>
-<body>
-  <header class="header">
-    <div class="logo">Keyboard Shop</div>
-    <nav class="nav">
-      <a href="index.html">Home</a>
-      <a href="cart.html">Cart</a>
-      <a href="login.html">Login/Register</a>
-      <a id="adminLink" href="admin.html" style="display:none;">Admin</a>
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container min-h-screen cyber-lattice flex flex-col pb-24 md:pb-0">
+
+  <header class="bg-[#0c1322]/60 backdrop-blur-xl sticky top-0 z-40 border-b border-white/5">
+    <nav class="flex justify-between items-center px-8 py-4 w-full max-w-screen-2xl mx-auto">
+      <a href="index.html" class="font-['Space_Grotesk'] text-2xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-purple-200 to-purple-400 flex items-center gap-3">
+        <img src="logo.png" alt="The Geek Shop Logo" class="h-10 object-contain">
+        <span>The Geek Shop</span>
+      </a>
+      <div class="hidden md:flex gap-8 items-center font-['Space_Grotesk'] tracking-tight">
+        <a class="text-slate-400 hover:text-purple-200 transition-colors" href="index.html">Home</a>
+        <a class="text-slate-400 hover:text-purple-200 transition-colors" href="products.html">Products</a>
+        <a class="text-slate-400 hover:text-purple-200 transition-colors" href="status.html">Order Status</a>
+      </div>
+      <div class="flex items-center gap-6">
+        <button id="cart-link" class="material-symbols-outlined text-purple-300 hover:text-purple-200 transition-colors active:scale-95 duration-150 relative">
+          shopping_cart
+          <span id="cart-count" class="absolute -top-2 -right-2 bg-primary-container text-on-primary-container text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">0</span>
+        </button>
+        <a href="admin.html" class="material-symbols-outlined text-purple-200 font-bold transition-colors active:scale-95 duration-150">admin_panel_settings</a>
+      </div>
     </nav>
   </header>
-  <section id="categoryProducts" style="display: flex; flex-wrap: wrap; justify-content: space-around;"></section>
-  <footer>© 2025 Keyboard Shop</footer>
-  <script type="module" src="js/firebase.js"></script>
-  <script type="module" src="js/auth.js"></script>
-  <script type="module" src="js/products.js"></script>
-  <script type="module" src="js/cart.js"></script>
-  <script type="module">
-    import { loadCategoryProducts } from './js/products.js';
-    loadCategoryProducts();
-  </script>
+
+  <main class="max-w-screen-2xl w-full mx-auto px-8 py-12 flex-grow space-y-12">
+    
+    <div id="login-panel" class="max-w-md w-full mx-auto glass-panel border border-white/10 rounded-2xl p-8 shadow-2xl space-y-6 mt-12" style="display: none;">
+      <div class="text-center space-y-2">
+        <span class="material-symbols-outlined text-purple-300 text-4xl">lock_open</span>
+        <h2 class="font-headline font-bold text-2xl tracking-tight">Core Authentication</h2>
+        <p class="text-xs text-slate-500 font-mono uppercase tracking-widest">Authorized operations division link</p>
+      </div>
+
+      <form id="login-form" class="space-y-4 admin-form font-['Inter']">
+        <div>
+          <label for="admin-email">Operational Identity Key</label>
+          <input type="email" id="admin-email" placeholder="identity@domain.system" required/>
+        </div>
+        <div>
+          <label for="admin-pass">Access Authorization Signature</label>
+          <input type="password" id="admin-pass" placeholder="••••••••••••••••" required/>
+        </div>
+        <button type="submit" class="w-full signature-gradient text-on-primary-fixed font-headline font-bold py-3 rounded-xl uppercase tracking-wider text-xs shadow-lg hover:brightness-110 transition-all active:scale-98">
+          EXECUTE IDENTITY LINK
+        </button>
+      </form>
+    </div>
+
+    <div id="admin-panel" class="space-y-12" style="display: none;">
+      
+      <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-white/5 pb-6">
+        <div>
+          <h1 class="font-headline text-4xl font-bold tracking-tight text-on-surface">Warehouse Terminal Dashboard</h1>
+          <p class="text-xs text-slate-500 mt-1 uppercase tracking-widest font-mono">Real-time object mapping & logistical arrays</p>
+        </div>
+        <button id="logout-btn" class="flex items-center justify-center gap-2 px-5 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-300 text-xs font-headline font-bold rounded-xl border border-red-500/20 tracking-wider uppercase transition-all active:scale-95">
+          <span class="material-symbols-outlined text-sm">logout</span>
+          <span>TERMINATE LINK</span>
+        </button>
+      </div>
+
+      <section class="glass-panel border border-white/5 rounded-2xl p-6 md:p-8 shadow-xl space-y-6">
+        <div class="border-b border-white/5 pb-3">
+          <h3 class="font-headline font-bold text-lg text-purple-200">Inject Device Object Payload</h3>
+          <p class="text-[10px] text-slate-500 uppercase tracking-widest font-mono mt-0.5">Append new parameters directly onto database schema logs</p>
+        </div>
+
+        <form id="add-product-form" class="admin-form space-y-6 font-['Inter']">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div>
+              <label for="add-id">System Unique Slug ID</label>
+              <input type="text" id="add-id" placeholder="e.g., vng-75-keyboard" required/>
+            </div>
+            <div>
+              <label for="add-name">Identity Product Label Name</label>
+              <input type="text" id="add-name" placeholder="e.g., VGN VX75 Metallic" required/>
+            </div>
+            <div>
+              <label for="add-category">Operational Category Matrix Node</label>
+              <select id="add-category" required>
+                <option value="Keyboard">Keyboard Mainframe</option>
+                <option value="Keycaps">Keycaps Grid Mod</option>
+                <option value="Switches">Switches Core Actuator</option>
+                <option value="Mouse">Mouse Tracking Device</option>
+                <option value="Deskmat">Deskmat Control Base</option>
+                <option value="Accessories">Accessories Terminal Aux</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+            <div>
+              <label for="add-price">Net Valuation Base Price (৳)</label>
+              <input type="number" id="add-price" placeholder="8500" required/>
+            </div>
+            <div>
+              <label for="add-old-price">Pre-Staged Strikeout Value (৳)</label>
+              <input type="number" id="add-old-price" placeholder="9500"/>
+            </div>
+            <div>
+              <label for="add-discount">Active Direct Discount Value (৳)</label>
+              <input type="number" id="add-discount" placeholder="1000"/>
+            </div>
+            <div>
+              <label for="add-stock">Available System Stock Qty</label>
+              <input type="number" id="add-stock" placeholder="25" required/>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div>
+              <label for="add-badge">Marketing Status Badge Flag</label>
+              <select id="add-badge">
+                <option value="">No Special Flags Active</option>
+                <option value="In Stock">In Stock Production Run</option>
+                <option value="Upcoming">Upcoming Terminal Allocation</option>
+                <option value="Pre Order">Pre-Order Token Protocol</option>
+              </select>
+            </div>
+            <div>
+              <label for="add-availability">Client Availability Option Toggle</label>
+              <select id="add-availability" required>
+                <option value="In Stock">Display As Available</option>
+                <option value="Out of Stock">Force Display As Exhausted</option>
+              </select>
+            </div>
+            <div>
+              <label for="add-status">Database Node Render Visibility</label>
+              <select id="add-status" required>
+                <option value="Active">Publish Active Live Feed</option>
+                <option value="Disabled">Staging State Offline Archive</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label for="add-colors">Variant Color Hex/String Tokens (Comma Separated)</label>
+              <input type="text" id="add-colors" placeholder="Anodized Black, Cyber Purple, Polar Silver"/>
+            </div>
+            <div>
+              <label for="add-images">Visual High-Res Preview URL Vectors (Comma Separated)</label>
+              <input type="text" id="add-images" placeholder="img1.png, img2.png, img3.png" required/>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-5 bg-white/5 p-4 rounded-xl border border-white/5">
+            <div class="col-span-2 md:col-span-4 -mb-2">
+              <span class="text-[10px] font-headline font-bold text-purple-300 tracking-wider uppercase">Keyboard / Accessories sub-matrix profiles</span>
+            </div>
+            <div>
+              <label for="add-keys">Key Layout Counts</label>
+              <input type="text" id="add-keys" placeholder="e.g., 81 Keys"/>
+            </div>
+            <div>
+              <label for="add-print">Legend Print Position</label>
+              <input type="text" id="add-print" placeholder="e.g., Side-Engraved"/>
+            </div>
+            <div>
+              <label for="add-layout">Localized Form Factor</label>
+              <input type="text" id="add-layout" placeholder="e.g., ANSI Layout"/>
+            </div>
+            <div>
+              <label for="add-profile">Keycap Design Profile</label>
+              <input type="text" id="add-profile" placeholder="e.g., Cherry Profile"/>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label for="add-desc">Formatted Specification Readout Description</label>
+              <textarea id="add-desc" rows="3" placeholder="Enter continuous technical feature logs and specifications lists description markup text..."></textarea>
+            </div>
+            <div>
+              <label for="add-meta-desc">SEO Head Metadata Descriptor Segment (150-160 characters)</label>
+              <textarea id="add-meta-desc" rows="3" placeholder="Short description targeting indexing bots for search optimization snippets..."></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="w-full signature-gradient text-on-primary-fixed font-headline font-bold py-4 rounded-xl tracking-wider uppercase hover:brightness-110 transition-all shadow-xl shadow-purple-500/10">
+            TRANSMIT NEW DEVICE PAYLOAD
+          </button>
+        </form>
+      </section>
+
+      <section class="space-y-4">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-purple-300">layers</span>
+          <h2 class="font-headline font-bold text-2xl tracking-tight">Active Hardware Inventory Logs</h2>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Preview</th>
+                <th>Identity Label Name</th>
+                <th>Price Valuation</th>
+                <th>Category Base</th>
+                <th>Variant Color Groups</th>
+                <th>Discount Factor</th>
+                <th>Stock Block</th>
+                <th>Availability Tag</th>
+                <th>Display Badge</th>
+                <th>Status Node</th>
+                <th class="text-center">Operations</th>
+              </tr>
+            </thead>
+            <tbody id="products-body">
+              </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="space-y-4">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-purple-300">receipt_long</span>
+          <h2 class="font-headline font-bold text-2xl tracking-tight">Clearing Transaction Orders Logs</h2>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Product Identifier Payload</th>
+                <th>Color Mod</th>
+                <th>Qty</th>
+                <th>Vector Logistics</th>
+                <th>Settled Paid (৳)</th>
+                <th>Outstanding Due (৳)</th>
+                <th>Legal Full Identity Name</th>
+                <th>Verification Phone Vector</th>
+                <th>Logistical Address Destination</th>
+                <th>Clearing Route Gateway</th>
+                <th>Sequence String TxnID</th>
+                <th>Tracking Status Step</th>
+              </tr>
+            </thead>
+            <tbody id="orders-body">
+              </tbody>
+          </table>
+        </div>
+      </section>
+      
+    </div>
+  </main>
+
+  <nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 md:hidden bg-[#0c1322]/90 backdrop-blur-lg border-t border-white/5 z-40">
+    <a class="flex flex-col items-center justify-center text-slate-500 px-4 py-1" href="index.html">
+      <span class="material-symbols-outlined">home</span>
+      <span class="text-[10px] font-bold uppercase tracking-tighter mt-1">Home</span>
+    </a>
+    <a class="flex flex-col items-center justify-center text-slate-500 px-4 py-1" href="products.html">
+      <span class="material-symbols-outlined">grid_view</span>
+      <span class="text-[10px] font-bold uppercase tracking-tighter mt-1">Shop</span>
+    </a>
+    <a class="flex flex-col items-center justify-center text-slate-500 px-4 py-1 relative" href="products.html?openCart=true">
+      <span class="material-symbols-outlined">shopping_cart</span>
+      <span class="text-[10px] font-bold uppercase tracking-tighter mt-1">Cart</span>
+    </a>
+    <a class="flex flex-col items-center justify-center text-purple-300 px-4 py-1 bg-purple-500/10 rounded-xl" href="admin.html">
+      <span class="material-symbols-outlined">admin_panel_settings</span>
+      <span class="text-[10px] font-bold uppercase tracking-tighter mt-1">Admin</span>
+    </a>
+  </nav>
+
+  <footer class="w-full py-12 px-8 bg-slate-950 border-t border-white/5 mt-24">
+    <div class="max-w-screen-2xl mx-auto space-y-12">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pb-8 border-b border-white/5">
+        
+        <div class="space-y-4">
+          <h3 class="font-headline font-bold text-sm uppercase tracking-widest text-slate-400">Payment Channels</h3>
+          <div class="space-y-3 font-['Inter'] text-xs text-on-surface-variant">
+            <div class="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl border border-white/5">
+              <img src="bkash-logo.png" alt="bKash" class="w-8 h-8 object-contain rounded-lg bg-white/5 p-1">
+              <div>
+                <p class="font-bold text-on-surface">bKash Instant Gateway</p>
+                <p class="text-[10px] text-slate-500">Full settlement or partial advance</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl border border-white/5">
+              <img src="cod-icon.png" alt="Cash on Delivery" class="w-8 h-8 object-contain rounded-lg bg-white/5 p-1">
+              <div>
+                <p class="font-bold text-on-surface">Cash on Delivery (COD)</p>
+                <p class="text-[10px] text-slate-500">Destination delivery verification</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <h3 class="font-headline font-bold text-sm uppercase tracking-widest text-slate-400">Social Arrays</h3>
+          <div class="flex gap-4">
+            <a href="https://www.facebook.com/thegeek.shop0" target="_blank" class="w-10 h-10 rounded-xl bg-surface-container-low border border-white/5 flex items-center justify-center text-slate-400 hover:text-primary transition-colors">
+              <img src="facebook.png" alt="Facebook" class="w-5 h-5 object-contain opacity-70 hover:opacity-100 transition-opacity">
+            </a>
+            <a href="https://www.instagram.com/thegeek.shop0" target="_blank" class="w-10 h-10 rounded-xl bg-surface-container-low border border-white/5 flex items-center justify-center text-slate-400 hover:text-primary transition-colors">
+              <img src="instagram.png" alt="Instagram" class="w-5 h-5 object-contain opacity-70 hover:opacity-100 transition-opacity">
+            </a>
+            <a href="https://wa.me/01960902526" target="_blank" class="w-10 h-10 rounded-xl bg-surface-container-low border border-white/5 flex items-center justify-center text-slate-400 hover:text-primary transition-colors">
+              <img src="whatsapp.png" alt="WhatsApp" class="w-5 h-5 object-contain opacity-70 hover:opacity-100 transition-opacity">
+            </a>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <div class="font-['Space_Grotesk'] text-lg font-bold tracking-tight text-slate-200">THE GEEK SHOP</div>
+          <p class="text-xs text-slate-500 font-['Inter'] leading-relaxed">
+            Kinetic Laboratory Div. Operational framework engineering tailored for hardware purists. All rights reserved.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] tracking-widest font-['Inter'] uppercase text-slate-600">
+        <p>© 2026 THE GEEK SHOP. KINETIC LABORATORY DIV.</p>
+        <div class="flex gap-6">
+          <a class="hover:text-purple-300 transition-colors" href="#">Terms of Protocol</a>
+          <a class="hover:text-purple-300 transition-colors" href="#">Privacy Encryption</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
 </body>
 </html>

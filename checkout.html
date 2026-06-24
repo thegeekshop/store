@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Dispatch Protocol | KINETIC LABS</title>
+  <link rel="icon" type="image/x-icon" href="logo t.png"> 
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "primary": "#ecd7ff",
+            "primary-container": "#d8b4fe",
+            "on-primary-fixed": "#29074a",
+            "surface": "#0c1322",
+            "on-surface": "#dce2f7",
+            "surface-container-lowest": "#070e1d",
+            "surface-container-low": "#141b2b",
+            "surface-container": "#191f2f",
+            "surface-container-high": "#232a3a",
+            "outline": "#968e9a",
+            "outline-variant": "#4a454f"
+          },
+          "fontFamily": {
+            "headline": ["Space Grotesk"],
+            "body": ["Inter"]
+          }
+        },
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+    .signature-gradient { background: linear-gradient(135deg, #ecd7ff 0%, #d8b4fe 100%); }
+    .tech-grid-overlay {
+      background-image: linear-gradient(rgba(236, 215, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(236, 215, 255, 0.05) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+  </style>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+    import { getAuth } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+    import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+  </script>
+  <script type="module" src="script.js"></script>
+</head>
+<body class="bg-surface text-on-surface font-body min-h-screen relative flex flex-col">
+  <div class="absolute inset-0 tech-grid-overlay pointer-events-none z-0"></div>
+
+  <nav class="relative z-50 bg-surface/80 backdrop-blur-xl border-b border-white/5">
+    <div class="flex justify-between items-center px-8 py-4 w-full max-w-7xl mx-auto">
+      <a href="index.html" class="text-2xl font-bold tracking-tighter text-primary font-headline">THE GEEK SHOP</a>
+      <a href="index.html" class="text-sm font-bold uppercase tracking-widest text-outline hover:text-primary transition-colors flex items-center gap-2">
+        <span class="material-symbols-outlined text-[16px]">arrow_back</span> Cancel Dispatch
+      </a>
+    </div>
+  </nav>
+
+  <main class="relative z-10 max-w-6xl mx-auto px-6 py-12 md:py-20 w-full flex-grow">
+    <div class="mb-12">
+      <h1 class="font-headline text-4xl md:text-5xl font-bold tracking-tighter uppercase">Dispatch Protocol</h1>
+      <p class="text-outline mt-2 tracking-widest uppercase text-xs">Secure Checkout Terminal</p>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+      <div class="lg:col-span-7 space-y-10">
+        
+        <section class="space-y-6">
+          <h2 class="font-headline text-xl font-bold border-b border-white/10 pb-2 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">person</span> Operative Details
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+              <label class="block text-[10px] text-outline uppercase tracking-widest">Full Name</label>
+              <input id="co-name" class="w-full bg-surface-container-low border border-white/5 focus:border-primary/50 rounded-xl px-4 py-3 text-on-surface outline-none transition-all" type="text" placeholder="John Doe">
+            </div>
+            <div class="space-y-2">
+              <label class="block text-[10px] text-outline uppercase tracking-widest">Phone Number</label>
+              <input id="co-phone" class="w-full bg-surface-container-low border border-white/5 focus:border-primary/50 rounded-xl px-4 py-3 text-on-surface outline-none transition-all" type="tel" placeholder="01XXXXXXXXX">
+            </div>
+          </div>
+          <div class="space-y-2">
+            <label class="block text-[10px] text-outline uppercase tracking-widest">Shipping Destination</label>
+            <textarea id="co-address" class="w-full bg-surface-container-low border border-white/5 focus:border-primary/50 rounded-xl px-4 py-3 text-on-surface outline-none transition-all resize-none" rows="3" placeholder="Full Delivery Address"></textarea>
+          </div>
+        </section>
+
+        <section class="space-y-6">
+          <h2 class="font-headline text-xl font-bold border-b border-white/10 pb-2 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">account_balance_wallet</span> Settlement Protocol
+          </h2>
+          
+          <div class="grid grid-cols-2 gap-4">
+            <label class="relative cursor-pointer group">
+              <input type="radio" name="payment_method" value="Bkash" class="peer sr-only" id="pay-bkash">
+              <div class="p-5 bg-surface-container-lowest border-2 border-transparent peer-checked:border-primary peer-checked:bg-primary/5 rounded-xl transition-all h-full">
+                <span class="material-symbols-outlined text-primary mb-2">send_money</span>
+                <p class="text-sm font-bold">bKash</p>
+                <p class="text-[10px] text-outline mt-1">Instant Digital Transfer</p>
+              </div>
+            </label>
+            
+            <label class="relative cursor-pointer group">
+              <input type="radio" name="payment_method" value="Cash on Delivery" class="peer sr-only" id="pay-cod">
+              <div class="p-5 bg-surface-container-lowest border-2 border-transparent peer-checked:border-primary peer-checked:bg-primary/5 rounded-xl transition-all h-full">
+                <span class="material-symbols-outlined text-outline mb-2 group-hover:text-primary transition-colors">local_shipping</span>
+                <p class="text-sm font-bold">Cash on Delivery</p>
+                <p class="text-[10px] text-outline mt-1">Pay upon arrival</p>
+              </div>
+            </label>
+          </div>
+
+          <div id="payment-details-box" class="bg-surface-container-low p-6 rounded-xl border border-white/5 hidden space-y-4">
+            <div class="flex justify-between items-center bg-surface-container-lowest p-3 rounded-lg border border-white/5">
+              <span class="text-xs text-outline uppercase tracking-widest">Merchant Number:</span>
+              <span id="co-merchant-number" class="font-mono text-primary font-bold tracking-wider"></span>
+            </div>
+            
+            <div id="txn-container" class="space-y-2 hidden">
+              <label class="block text-[10px] text-primary uppercase tracking-widest font-bold">Transaction ID (Required)</label>
+              <input id="co-txn" class="w-full bg-surface-container-lowest border border-primary/30 focus:border-primary rounded-xl px-4 py-3 text-on-surface outline-none transition-all font-mono uppercase" type="text" placeholder="Enter bKash TXN ID">
+            </div>
+
+            <p id="co-payment-note" class="text-xs text-outline-variant italic"></p>
+          </div>
+        </section>
+      </div>
+
+      <div class="lg:col-span-5">
+        <div class="bg-surface-container p-8 rounded-2xl border border-white/5 sticky top-24">
+          <h3 class="font-headline text-2xl font-bold mb-6">Manifest</h3>
+          
+          <div id="co-items-list" class="space-y-4 mb-6 max-h-64 overflow-y-auto pr-2 custom-scrollbar"></div>
+          
+          <div class="space-y-3 pt-6 border-t border-white/10">
+            <div class="flex justify-between text-sm">
+              <span class="text-outline">Subtotal</span>
+              <span id="co-subtotal-display" class="font-mono text-on-surface">৳0.00</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-outline">Delivery Charge</span>
+              <span id="co-delivery-display" class="font-mono text-on-surface">৳0.00</span>
+            </div>
+            
+            <div id="preorder-split-display" class="hidden pt-3 mt-3 border-t border-dashed border-white/10 space-y-2">
+              <div class="flex justify-between text-sm">
+                <span class="text-primary font-bold text-xs uppercase tracking-widest">Advance Required (25%)</span>
+                <span id="co-advance-display" class="font-mono text-primary font-bold">৳0.00</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-outline text-xs uppercase tracking-widest">Due on Delivery</span>
+                <span id="co-due-display" class="font-mono text-outline">৳0.00</span>
+              </div>
+            </div>
+
+            <div class="flex justify-between items-center pt-6 mt-4 border-t border-white/10">
+              <span class="font-headline text-lg font-bold">Grand Total</span>
+              <span id="co-total-display" class="font-headline text-3xl font-bold text-primary tracking-tighter">৳0.00</span>
+            </div>
+          </div>
+
+          <div class="mt-8 space-y-4">
+            <label class="flex items-start gap-3 cursor-pointer group">
+              <input type="checkbox" id="co-policy" class="mt-1 rounded bg-surface-container-lowest border-white/10 text-primary focus:ring-primary">
+              <span class="text-xs text-outline leading-relaxed">I accept the <a href="termsandconditions.html" class="text-primary hover:underline">Shipping & Return Policies</a> and confirm my details are correct.</span>
+            </label>
+            
+            <button id="final-checkout-btn" class="w-full signature-gradient text-on-primary-fixed font-headline font-bold py-5 rounded-xl tracking-widest uppercase shadow-lg shadow-purple-500/20 hover:brightness-110 active:scale-[0.98] transition-all flex justify-center items-center gap-2">
+              <span class="material-symbols-outlined">rocket_launch</span> Authorize Deployment
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,11 +1,88 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="dark" lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Home</title>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>The Geek Shop | Home</title>
   <link rel="icon" type="image/x-icon" href="logo t.png"> 
-  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  
+  <style>
+    /* --- SHIMMER ANIMATION UTILITY --- */
+    @keyframes shimmer {
+      100% { transform: translateX(100%); }
+    }
+    .shimmer {
+      position: relative;
+      overflow: hidden;
+      background: #191f2f; /* matches surface-container */
+    }
+    .shimmer::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0; bottom: 0; left: 0;
+      background-image: linear-gradient(90deg, rgba(255, 255, 255, 0) 0, rgba(255, 255, 255, 0.03) 20%, rgba(255, 255, 255, 0.05) 60%, rgba(255, 255, 255, 0));
+      transform: translateX(-100%);
+      animation: shimmer 1.5s infinite;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0c1322;
+      color: #dce2f7;
+      overflow-x: hidden;
+    }
+    .headline-font { font-family: 'Space Grotesk', sans-serif; }
+    
+    .cart-slider {
+      transition: transform 0.3s ease-in-out;
+    }
+    .modal {
+      display: none;
+      background-color: rgba(7, 14, 29, 0.8);
+      backdrop-filter: blur(12px);
+    }
+    .modal.active {
+      display: flex;
+    }
+  </style>
+
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-bright": "#323949",
+            "surface-container": "#191f2f",
+            "surface-variant": "#2e3545",
+            "surface-container-low": "#141b2b",
+            "on-primary-fixed": "#29074a",
+            "inverse-surface": "#dce2f7",
+            "surface-container-highest": "#2e3545",
+            "surface": "#0c1322",
+            "primary-container": "#d8b4fe",
+            "surface-container-high": "#232a3a",
+            "background": "#0c1322",
+            "on-surface": "#dce2f7",
+            "primary": "#ecd7ff",
+            "on-background": "#dce2f7",
+            "on-surface-variant": "#cdc3d0",
+          },
+          fontFamily: {
+            "headline": ["Space Grotesk"],
+            "body": ["Inter"]
+          }
+        }
+      }
+    }
+  </script>
+
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
     import { getAuth } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
@@ -13,110 +90,198 @@
   </script>
   <script type="module" src="script.js"></script>
 </head>
-<body>
-  <header class="site-header">
-     <nav>
-      <a href="index.html" class="logo">
-        <img src="logo.png" alt="The Geek Shop Logo" style="height: 40px;">
+
+<body class="bg-background text-on-background">
+
+<header class="bg-[#0c1322]/80 backdrop-blur-xl top-0 sticky z-[60] border-b border-white/5">
+    <div class="flex justify-between items-center px-6 lg:px-8 py-4 w-full max-w-screen-2xl mx-auto">
+      <a href="index.html" class="flex items-center gap-2 text-2xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-purple-200 to-purple-400 font-['Space_Grotesk']">
+        <img src="logo.png" alt="The Geek Shop Logo" class="h-10 object-contain inline-block" onerror="this.style.display='none'">
+        <span>The Geek Shop</span>
       </a>
-      <div class="nav-links">
-        <a href="products.html">Products</a>
-        <a href="status.html">Order Status</a>
-        <a id="cart-link" style="cursor: pointer;">Cart (<span id="cart-count">0</span>)</a>
+      
+      <div class="hidden md:flex items-center relative w-96">
+        <span class="material-symbols-outlined absolute left-3 text-slate-500 text-sm">search</span>
+        <input type="text" id="global-search-input" placeholder="Search components globally..." class="w-full bg-surface-container-lowest border border-white/5 rounded-xl pl-9 pr-4 py-2 text-sm text-on-surface focus:outline-none focus:border-primary/50 focus:ring-0 placeholder:text-outline-variant transition-all">
       </div>
-    </nav>
+
+      <nav class="hidden md:flex items-center space-x-8 font-['Space_Grotesk'] tracking-tight">
+        <a class="text-slate-400 hover:text-purple-200 transition-colors" href="products.html">Products</a>
+        <a class="text-slate-400 hover:text-purple-200 transition-colors" href="status.html">Order Status</a>
+      </nav>
+      
+      <div class="flex items-center gap-6">
+        <button id="cart-link" class="active:scale-95 duration-150 relative p-2 bg-surface-container-low rounded-xl border border-white/5 hover:bg-surface-variant transition-all">
+          <span class="material-symbols-outlined text-slate-300 block">shopping_cart</span>
+          <span id="cart-count" class="absolute -top-2 -right-2 bg-purple-500 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center border border-[#0c1322]">0</span>
+        </button>
+      </div>
+    </div>
   </header>
 
- <main class="container">
-    <h1>Welcome to The Geek Shop</h1>
+  <main class="w-full max-w-screen-2xl mx-auto px-6 md:px-8">
+    
+    <section id="hero-section" class="relative min-h-[600px] flex items-center pt-12 pb-24 overflow-hidden transition-opacity duration-500">
+      <div class="z-10 w-full grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+        <div class="md:col-span-7 flex flex-col items-start gap-8">
+          <span id="hero-tag" class="label-md uppercase tracking-[0.2em] text-primary text-sm font-bold bg-primary/10 px-4 py-1 rounded-full">Featured Gear</span>
+          <h1 id="hero-title" class="headline-font text-5xl md:text-7xl font-bold tracking-tighter leading-[0.95] text-on-surface uppercase shimmer rounded-xl text-transparent">
+            LOADING <br/>
+            GEAR...
+          </h1>
+          <p id="hero-desc" class="text-base md:text-lg text-on-surface-variant max-w-lg leading-relaxed font-light">
+            Fetching the latest premium tactical hardware from our database...
+          </p>
+          <div class="flex gap-4 pt-4">
+            <a id="hero-link" href="products.html" class="bg-gradient-to-br from-primary to-primary-container text-on-primary-fixed font-bold px-8 py-4 rounded-xl shadow-lg hover:brightness-110 transition-all text-base">
+              View Product Details
+            </a>
+          </div>
+        </div>
+        <div class="md:col-span-5 relative mt-12 md:mt-0">
+          <div class="absolute -top-20 -right-20 w-80 h-80 bg-primary/20 blur-[120px] rounded-full"></div>
+          <div class="relative z-10 p-4 bg-surface-container-low/40 backdrop-blur-sm rounded-[2rem] rotate-3 shadow-2xl border border-white/5">
+            <img id="hero-img" alt="Premium mechanical hardware" class="rounded-[1.5rem] w-full h-[380px] object-cover shimmer" src="logo.png"/>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <h2>May Interest You</h2>
-    <div id="interest-products" class="product-list new-hot-list"></div>
+    <section id="categories" class="py-24 border-t border-white/5">
+      <div class="flex flex-col mb-12">
+        <span class="text-primary font-bold uppercase tracking-widest text-xs mb-2">Inventory</span>
+        <h2 class="headline-font text-4xl font-bold">Categories</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        
+        <a href="products.html?category=Keyboard%20and%20Mouse" class="md:col-span-2 md:row-span-2 bg-surface-container-low rounded-2xl p-10 flex flex-col justify-between group overflow-hidden relative block cursor-pointer">
+          <div class="z-10">
+            <h3 class="headline-font text-3xl font-bold mb-4">Keyboards & Mouses</h3>
+            <p class="text-on-surface-variant max-w-xs mb-8">From compact 60% to full-size battle stations. Along with the companion</p>
+            <span class="text-primary font-bold flex items-center gap-2 group-hover:gap-4 transition-all">
+              View All <span class="material-symbols-outlined">arrow_forward</span>
+            </span>
+          </div>
+          <img class="absolute -bottom-10 -right-10 w-3/4 opacity-40 group-hover:opacity-80 transition-opacity grayscale group-hover:grayscale-0 scale-110 group-hover:scale-125 duration-700" alt="Keyboard" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTbotxLraaw_Ewch9fY9Vc4K9eCydV-KJnZhOrr2_SJqXGl_f2Vmhsff5haegU-qLQOmL1ErmlBjpRrpreMvP35UdngRUbuRIjqdA81SJ0ygsN3YF5ZGmd6GM0F2avxc2Ig1giq7zUwzpGinWxWf_T78S90gS3Gend_LzjnVYf-AlHd_MMS3iwZsJymssCy6ojvVTA7Ytktz_LIg9p2bRhdXX9_KiciSEx6DyY2RR6mBbUO2fB6gRnIPrjGjVwKJc3-ZkSxrK6qtX2">
+        </a>
 
-    <h2>Categories</h2>
-    <div id="categories" class="product-list new-hot-list"></div>
+        <a href="products.html?category=Switches" class="bg-surface-container rounded-2xl p-8 flex flex-col justify-between group overflow-hidden relative min-h-[250px] block cursor-pointer">
+          <div class="z-10">
+            <h3 class="headline-font text-xl font-bold">Switches</h3>
+                        <span class="text-primary font-bold flex items-center gap-2 group-hover:gap-4 transition-all">
+              View All <span class="material-symbols-outlined">arrow_forward</span>
+            </span>
+          </div>
+          <img class="absolute bottom-0 right-0 w-2/3 opacity-30 group-hover:opacity-60 transition-opacity duration-500 translate-x-4 translate-y-4" alt="Switches" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3uxPdB0i6QwrD3bgzJx7yCzqC9HOJEZUu2dGPKwTLsFI81Vn0GA1HWEeSRBGYCBI9YeaRjCwjsdcpymofWnMfl2D6QIoYLzJAtB2_k2s7-XwmwsQpynJUNyNn7XwzbdSAweAJikCqMlg1haFfdBHF16zq_VUoKYXHxSqPsF9iLiHfMUNd57yUDXFCXm3obg41eA6GxViziXITM8hh82m-QTktp-cFNfxC6Ux3Z8tec15s_xeOBglSp9MeZX8ZHXVX1G2Gd6yDxL3S">
+        </a>
+
+        <a href="products.html?category=Keycaps" class="bg-surface-container rounded-2xl p-8 flex flex-col justify-between group overflow-hidden relative min-h-[250px] block cursor-pointer">
+          <div class="z-10">
+            <h3 class="headline-font text-xl font-bold">Keycaps</h3>
+                        <span class="text-primary font-bold flex items-center gap-2 group-hover:gap-4 transition-all">
+              View All <span class="material-symbols-outlined">arrow_forward</span>
+            </span>
+          </div>
+          <img class="absolute bottom-0 right-0 w-2/3 opacity-30 group-hover:opacity-60 transition-opacity duration-500 translate-x-4 translate-y-4" alt="Keycaps" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-ioy9J-izFSYnU5IUbiwIDKVK3t17Igc8gGNzfFetyjKtU4PENalSwrnQ2XtN4X30L4pS8HSH8ocwbZEMxaLzP0VbjLTBaz1bvaqihkWsntPq2w_pA5O7c61Y8Q-AvzT27INOaeAqJ4tMiAH2CQcJ0HS8drRba-VhPpCSN8bpxLSJp20Xqcig-CpfohbC7Oj6RAp3XjeC4yOfd3U73huT45IqBtYnmUsaHSZbCTbEhAwBC6B8E-sHdeMfuj8eH3Jmx1zRSKMXp5ym">
+        </a>
+
+        <a href="products.html?category=Accessories%20and%20Collectables" class="md:col-span-2 bg-surface-container rounded-2xl p-8 flex items-center justify-between group overflow-hidden relative min-h-[250px] block cursor-pointer">
+          <div class="z-10">
+            <h3 class="headline-font text-2xl font-bold mb-2">Accessories</h3>
+            <p class="text-on-surface-variant max-w-[200px]">Tools, cables, cleaning kits and Collectables.</p>
+                        <span class="text-primary font-bold flex items-center gap-2 group-hover:gap-4 transition-all">
+              View All <span class="material-symbols-outlined">arrow_forward</span>
+            </span>
+          </div>
+          <img class="absolute -right-10 top-0 h-full w-auto opacity-30 group-hover:opacity-60 transition-opacity duration-500" alt="Accessories" src="https://lh3.googleusercontent.com/aida-public/AB6AXuArEBQUsK1wiQ1GdI88UAXCjRA1lNRALQI6RcOB-wnrw5MVoeL8jpWLuWrliCnfhZxNhLoqyyFfVXNbCVD9nv5pMB449FAqyYy7O1bHmZaSXxPl1FVd2rRVKV5c_bctcr7BKngT3LzUBk9Pt3RAKwPJ_trwFuvBhNQH__AEznnQGa1E0teLfJXFlz7HjmbyTLKudyUP2GTvuGNJEC2xggj37lBCXTBS558ao5fAggCzIRWHSW0HkG2yB6NhEBpiav75yysRh5kpvlvI">
+        </a>
+
+      </div>
+    </section>
+
+    <section class="py-16 border-t border-white/5">
+      <div class="flex justify-between items-end mb-12">
+        <div>
+          <span class="text-primary font-bold uppercase tracking-widest text-xs mb-2">Curated Selection</span>
+          <h2 class="headline-font text-3xl md:text-4xl font-bold">May Interest You</h2>
+        </div>
+        <a href="products.html" class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2 text-xs uppercase tracking-widest font-bold">
+          Browse All Gear <span class="material-symbols-outlined text-sm">north_east</span>
+        </a>
+      </div>
+      
+      <div id="interest-products" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-surface-container rounded-2xl h-80 shimmer border border-white/5"></div>
+        <div class="bg-surface-container rounded-2xl h-80 shimmer border border-white/5"></div>
+        <div class="bg-surface-container rounded-2xl h-80 shimmer border border-white/5"></div>
+        <div class="bg-surface-container rounded-2xl h-80 shimmer border border-white/5"></div>
+      </div>
+    </section>
+
+    <section class="py-16 border-t border-white/5">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div class="flex items-start gap-6">
+          <span class="material-symbols-outlined text-4xl text-primary">local_shipping</span>
+          <div>
+            <h4 class="headline-font font-bold text-lg mb-1 uppercase tracking-wider">Reliable Logistics</h4>
+            <p class="text-sm text-on-surface-variant">Carefully wrapped protective packaging for every enthusiast order.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-6">
+          <span class="material-symbols-outlined text-4xl text-primary">verified_user</span>
+          <div>
+            <h4 class="headline-font font-bold text-lg mb-1 uppercase tracking-wider">Premium Support</h4>
+            <p class="text-sm text-on-surface-variant">Top-tier customer support ready to answer hardware & build queries.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-6">
+          <span class="material-symbols-outlined text-4xl text-primary">forum</span>
+          <div>
+            <h4 class="headline-font font-bold text-lg mb-1 uppercase tracking-wider">Social Channels</h4>
+            <p class="text-sm text-on-surface-variant">Connect directly with us across social platforms for prompt order assistance.</p>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <div id="image-viewer" class="image-viewer">
-    <button id="close-viewer" class="close-viewer">&times;</button>
-    <img id="viewer-img" src="" alt="">
-  </div>
-
-  <!-- Cart Slider -->
-  <div id="cart-slider" class="cart-slider">
-    <button id="close-cart" class="close-viewer">&times;</button>
-    <h2>Shopping Cart</h2>
-    <div id="cart-items" class="cart-items"></div>
-    <div id="cart-total" class="cart-total"><strong>Total: ৳0</strong></div>
-    <button id="checkout-cart" class="checkout-cart-btn">Checkout</button>
-    <div id="cart-empty" class="muted" style="text-align:center; padding:20px; display:none;">Your cart is empty</div>
-  </div>
-
-
-  <!-- Cart Slider -->
-  <div id="cart-slider" class="cart-slider">
-    <button id="close-cart" class="close-viewer">&times;</button>
-    <h2>Shopping Cart</h2>
-    <div id="cart-items" class="cart-items"></div>
-    <div id="cart-total" class="cart-total"><strong>Total: ৳0</strong></div>
-    <button id="checkout-cart" class="checkout-cart-btn">Checkout</button>
-    <div id="cart-empty" class="muted" style="text-align:center; padding:20px; display:none;">Your cart is empty</div>
-  </div>
-
-  <!-- Cart Checkout Modal -->
-  <div id="cart-checkout-modal" class="modal">
-    <div class="card modal-content">
-      <div class="modal-header">
-        <h2>Checkout (Cart)</h2>
-        <button id="cart-close-modal-btn">Close</button>
-      </div>
-      <form id="cart-checkout-form" class="form">
-        <div id="cart-co-items"></div>
-        <div class="row">
-          <div><label>Delivery Fee</label><input id="cart-co-delivery" readonly></div>
-          <div><label>Total Amount</label><input id="cart-co-total" readonly></div>
-        </div>
-        <div class="row">
-          <div><label>Name</label><input id="cart-co-name" required></div>
-          <div><label>Phone</label><input id="cart-co-phone" type="tel" required></div>
-        </div>
-        <div><label>Address</label><textarea id="cart-co-address" required></textarea></div>
-        <div class="row">
-          <div><label>Payment Method</label>
-            <select id="cart-co-payment" required>
-              <option value="">Select</option>
-              <option value="Cash on Delivery">Cash on Delivery</option>
-              <option value="Bkash">Bkash</option>
-            </select>
-          </div>
-          <div><label>Pay to</label><input id="cart-co-payment-number" readonly></div>
-        </div>
-        <div class="row">
-          <div><label>Pay Now (tk)</label><input id="cart-co-pay-now" readonly></div>
-          <div><label>Due Amount (tk)</label><input id="cart-co-due-amount" readonly></div>
-        </div>
-        <div><label>Transaction ID</label><input id="cart-co-txn"></div>
-        <div><label><input type="checkbox" id="cart-co-policy" required> I agree to the <a href="status.html">Order Policy</a></label></div>
-          <p id="cart-co-note" class="muted"></p>
-        <button id="cart-place-order-btn" type="submit">Place Order</button>
-      </form>
+  <div id="cart-slider" class="fixed inset-y-0 right-0 w-full md:w-[400px] bg-surface-container-low border-l border-white/5 shadow-2xl z-[100] transform translate-x-full transition-transform duration-300 flex flex-col hidden">
+    <div class="p-6 border-b border-white/5 flex justify-between items-center bg-[#0c1322]">
+      <h2 class="text-xl font-bold text-on-surface flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary">shopping_cart</span> Your Cart
+      </h2>
+      <button id="close-cart" class="text-on-surface-variant hover:text-white transition-colors p-2 bg-surface-container rounded-full flex items-center justify-center">
+        <span class="material-symbols-outlined">close</span>
+      </button>
     </div>
-  
+    
+    <div class="flex-1 overflow-y-auto p-6 flex flex-col gap-4 relative" id="cart-items">
+      </div>
+
+    <div class="p-6 border-t border-white/5 bg-[#0c1322] z-10">
+      <div id="cart-total" class="flex justify-between items-center mb-6 text-xl text-on-surface">
+        <strong>Total: ৳0</strong>
+      </div>
+      <button id="checkout-cart" class="w-full bg-primary text-on-primary-fixed font-bold py-4 rounded-xl flex justify-center items-center gap-2 hover:brightness-110 transition-all shadow-lg active:scale-95">
+        Proceed to Checkout <span class="material-symbols-outlined">arrow_forward</span>
+      </button>
+    </div>
   </div>
-<footer style="background-color: #e8e8ff; padding: 20px; text-align: center; height: 90px; color:  #000000; font-family: Arial, sans-serif;">
-  <div>
-    <a href="https://www.facebook.com/thegeek.shop0" target="_blank" style="margin: 0 10px;">
-      <img src="facebook.png" alt="Facebook" style="width: 30px; height: 30px;">
-    </a>
-    <a href="https://www.instagram.com/thegeek.shop0" target="_blank" style="margin: 0 10px;">
-      <img src="instagram.png" alt="Instagram" style="width: 30px; height: 30px;">
-    </a>
-    <a href="https://wa.me/01960902526" target="_blank" style="margin: 0 10px;">
-      <img src="whatsapp.png" alt="WhatsApp" style="width: 30px; height: 30px;">
-    </a>
-  </div>
-  <p>&copy; All rights reserved by The Geek Shop</p>
+<footer class="bg-slate-950 w-full py-12 px-8 border-t border-white/5 bg-slate-900">
+<div class="flex flex-col md:flex-row justify-between items-center gap-8 max-w-screen-2xl mx-auto font-['Inter'] text-xs tracking-widest text-slate-500">
+<div class="font-['Space_Grotesk'] text-lg font-bold text-slate-200">
+                THE GEEK SHOP
+            </div>
+<div class="flex gap-8">
+<a class="text-slate-600 hover:text-purple-300 transition-opacity opacity-80 hover:opacity-100" href="termsandconditions.html">Terms and Conditions</a>
+<a class="text-slate-600 hover:text-purple-300 transition-opacity opacity-80 hover:opacity-100" href="https://www.facebook.com/thegeek.shop0">Facebook</a>
+<a class="text-slate-600 hover:text-purple-300 transition-opacity opacity-80 hover:opacity-100" href="https://www.instagram.com/thegeek.shop0">Instagram</a>
+<a class="text-slate-600 hover:text-purple-300 transition-opacity opacity-80 hover:opacity-100" href="https://wa.me/01960902526">WhatsApp</a>
+</div>
+<div class="opacity-80">
+                © 2026 THE GEEK SHOP. 
+            </div>
+</div>
 </footer>
 </body>
-
 </html>

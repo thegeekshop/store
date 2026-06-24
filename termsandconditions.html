@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>TERMS & CONDITIONS | THE GEEK SHOP</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <!-- PDF Generation Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed-dim": "#c4c5db",
+                        "secondary-container": "#444558",
+                        "on-tertiary-fixed-variant": "#404758",
+                        "primary-container": "#d8b4fe",
+                        "on-tertiary-fixed": "#141b2b",
+                        "on-secondary": "#2d2f40",
+                        "inverse-surface": "#dce2f7",
+                        "on-tertiary-container": "#495061",
+                        "on-surface": "#dce2f7",
+                        "inverse-on-surface": "#293040",
+                        "surface-container": "#191f2f",
+                        "primary-fixed": "#efdbff",
+                        "on-primary-fixed": "#29074a",
+                        "on-secondary-fixed-variant": "#444558",
+                        "inverse-primary": "#6f5092",
+                        "outline-variant": "#4a454f",
+                        "outline": "#968e9a",
+                        "primary-fixed-dim": "#dbb8ff",
+                        "on-primary": "#3f2160",
+                        "on-primary-fixed-variant": "#573878",
+                        "surface-container-low": "#141b2b",
+                        "secondary": "#c4c5db",
+                        "tertiary-fixed-dim": "#c0c6db",
+                        "tertiary-container": "#bcc2d7",
+                        "error": "#ffb4ab",
+                        "on-secondary-fixed": "#181a2b",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-highest": "#2e3545",
+                        "on-surface-variant": "#cdc3d0",
+                        "surface-container-lowest": "#070e1d",
+                        "primary": "#ecd7ff",
+                        "on-secondary-container": "#b3b3c9",
+                        "secondary-fixed": "#e1e1f7",
+                        "on-tertiary": "#293040",
+                        "on-error": "#690005",
+                        "error-container": "#93000a",
+                        "surface-tint": "#dbb8ff",
+                        "surface": "#0c1322",
+                        "surface-dim": "#0c1322",
+                        "surface-container-high": "#232a3a",
+                        "background": "#0c1322",
+                        "surface-bright": "#323949",
+                        "tertiary-fixed": "#dce2f7",
+                        "on-primary-container": "#604283",
+                        "on-background": "#dce2f7",
+                        "tertiary": "#d8def3",
+                        "surface-variant": "#2e3545"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "display": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Inter"],
+                        "mono": ["JetBrains Mono"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0c1322;
+            color: #dce2f7;
+            font-family: 'Inter', sans-serif;
+        }
+        .cyber-grid {
+            background-image: linear-gradient(to right, rgba(216, 180, 254, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(216, 180, 254, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .glass-panel {
+            background: rgba(25, 31, 47, 0.7);
+            backdrop-filter: blur(12px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        ::selection {
+            background: #d8b4fe;
+            color: #29074a;
+        }
+        .section-anchor {
+            scroll-margin-top: 120px;
+        }
+        /* Custom styling for print/pdf container isolation */
+        .pdf-print-mode {
+            background: #070e1d !important;
+            color: #dce2f7 !important;
+            padding: 40px !important;
+            width: 800px !important;
+        }
+        .pdf-print-mode .legal-card, 
+        .pdf-print-mode .glass-panel,
+        .pdf-print-mode bg-surface-container,
+        .pdf-print-mode bg-surface-container-low {
+            background: #141b2b !important;
+            border: 1px solid rgba(216, 180, 254, 0.15) !important;
+            backdrop-filter: none !important;
+        }
+    </style>
+</head>
+<body class="selection:bg-primary-container selection:text-on-primary-container">
+
+<!-- TopAppBar -->
+<header class="bg-[#0c1322]/80 backdrop-blur-xl top-0 sticky z-[60] border-b border-white/5">
+    <div class="flex justify-between items-center px-6 lg:px-8 py-4 w-full max-w-screen-2xl mx-auto">
+      <a href="index.html" class="flex items-center gap-2 text-2xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-purple-200 to-purple-400 font-['Space_Grotesk']">
+        <img src="logo.png" alt="The Geek Shop Logo" class="h-10 object-contain inline-block" onerror="this.style.display='none'">
+        <span>The Geek Shop</span>
+      </a>
+      
+      <div class="hidden md:flex items-center relative w-96">
+        <span class="material-symbols-outlined absolute left-3 text-slate-500 text-sm">search</span>
+        <input type="text" id="global-search-input" placeholder="Search components globally..." class="w-full bg-surface-container-lowest border border-white/5 rounded-xl pl-9 pr-4 py-2 text-sm text-on-surface focus:outline-none focus:border-primary/50 focus:ring-0 placeholder:text-outline-variant transition-all">
+      </div>
+
+      <nav class="hidden md:flex items-center space-x-8 font-['Space_Grotesk'] tracking-tight">
+        <a class="text-slate-400 hover:text-purple-200 transition-colors" href="products.html">Products</a>
+        <a class="text-slate-400 hover:text-purple-200 transition-colors" href="status.html">Order Status</a>
+      </nav>
+      
+      <div class="flex items-center gap-6">
+        <button id="cart-link" class="active:scale-95 duration-150 relative p-2 bg-surface-container-low rounded-xl border border-white/5 hover:bg-surface-variant transition-all">
+          <span class="material-symbols-outlined text-slate-300 block">shopping_cart</span>
+          <span id="cart-count" class="absolute -top-2 -right-2 bg-purple-500 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center border border-[#0c1322]">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+
+<main class="relative min-h-screen cyber-grid pt-12 pb-24" id="mainProtocolContent">
+    <!-- Hero Section -->
+    <section class="max-w-screen-2xl mx-auto px-8 mb-20 relative overflow-hidden">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-outline-variant/20 pb-12">
+            <div class="space-y-4">
+                <div class="flex items-center gap-4 text-primary text-sm font-mono tracking-widest uppercase">
+                    <span class="w-12 h-[1px] bg-primary"></span> <span>SYSTEM_POLICIES: ONLINE</span>
+                </div>
+                <h1 class="text-6xl md:text-8xl font-black font-display tracking-tighter text-on-surface"> TERMS &<br/><span class="text-primary-container">CONDITIONS</span> </h1>
+                <div class="flex items-center gap-6 font-mono text-xs text-outline">
+                    <div class="flex flex-col">
+                        <span class="uppercase">Jurisdiction</span>
+                        <span class="text-on-surface">Bangladesh</span>
+                    </div>
+                    <div class="w-[1px] h-8 bg-outline-variant/30"></div>
+                    <div class="flex flex-col">
+                        <span class="uppercase">Last Updated</span>
+                        <span class="text-on-surface">24 June 2026</span>
+                    </div>
+                </div>
+            </div>
+            <button id="downloadPdfBtn" class="group relative px-8 py-4 bg-gradient-to-br from-primary to-primary-container text-on-primary-fixed font-headline font-bold rounded-xl transition-all hover:shadow-[0_0_30px_rgba(216,180,254,0.4)] active:scale-95 flex items-center gap-3">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">file_download</span> DOWNLOAD PDF
+            </button>
+        </div>
+    </section>
+
+    <!-- Content Shell -->
+    <div class="max-w-screen-2xl mx-auto px-8 flex flex-col lg:flex-row gap-16">
+        <!-- Side Navigation (Sticky TOC) -->
+        <aside class="lg:w-72 flex-shrink-0">
+            <div class="sticky top-32 space-y-2">
+                <p class="font-display text-[10px] tracking-[0.2em] text-outline uppercase mb-6">DOCUMENT_NODES</p>
+                <nav class="space-y-1" id="tocNavbar">
+                    <a class="block py-3 px-4 rounded-lg bg-surface-container-high/50 text-primary border-l-2 border-primary font-headline text-sm transition-all shadow-sm" href="#general-terms">01 // GENERAL_AGREEMENT</a>
+                    <a class="block py-3 px-4 rounded-lg hover:bg-surface-container-high/30 text-outline hover:text-on-surface font-headline text-sm transition-all" href="#purchase-payment">02 // ESCROW_PAYMENT</a>
+                    <a class="block py-3 px-4 rounded-lg hover:bg-surface-container-high/30 text-outline hover:text-on-surface font-headline text-sm transition-all" href="#shipping-dispatch">03 // LOGISTICS_FLOW</a>
+                    <a class="block py-3 px-4 rounded-lg hover:bg-surface-container-high/30 text-outline hover:text-on-surface font-headline text-sm transition-all" href="#preorder-policy">04 // PRE_ORDER_LOCK</a>
+                    <a class="block py-3 px-4 rounded-lg hover:bg-surface-container-high/30 text-outline hover:text-on-surface font-headline text-sm transition-all" href="#return-refund">05 // VOID_PROTOCOL</a>
+                    <a class="block py-3 px-4 rounded-lg hover:bg-surface-container-high/30 text-outline hover:text-on-surface font-headline text-sm transition-all" href="#color-disclaimer">06 // VISUAL_DISCLAIMER</a>
+                    <a class="block py-3 px-4 rounded-lg hover:bg-surface-container-high/30 text-outline hover:text-on-surface font-headline text-sm transition-all" href="#liability-policy">07 // LIABILITY_LIMIT</a>
+                    <a class="block py-3 px-4 rounded-lg hover:bg-surface-container-high/30 text-outline hover:text-on-surface font-headline text-sm transition-all" href="#governing-law">08 // COURT_JURISDICTION</a>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Legal Articles -->
+        <div class="flex-grow space-y-20 max-w-4xl" id="legalArticlesContainer">
+            <!-- Section 01 -->
+            <article class="section-anchor group" id="general-terms">
+                <div class="flex items-baseline gap-4 mb-6">
+                    <span class="font-mono text-primary text-xl font-bold">01.0</span>
+                    <h2 class="text-3xl font-display font-bold tracking-tight text-on-surface uppercase">General Agreement</h2>
+                </div>
+                <div class="space-y-4 text-on-surface-variant font-body leading-relaxed text-base">
+                    <p>Welcome to <span class="text-on-surface font-bold">The Geek Shop</span>. By browsing, accessing, or executing purchases on this terminal website, you validate a binding legal framework. You agree to align operations completely with these explicit terms and conditions along with all domestic and international computing laws.</p>
+                    <p>We reserve absolute rights to modify, re-calibrate, patch, or discontinue any product listings, site nodes, or regulatory parameters at our sole discretion without preceding announcements.</p>
+                </div>
+            </article>
+
+            <!-- Section 02 -->
+            <article class="section-anchor group" id="purchase-payment">
+                <div class="flex items-baseline gap-4 mb-6">
+                    <span class="font-mono text-primary text-xl font-bold">02.0</span>
+                    <h2 class="text-3xl font-display font-bold tracking-tight text-on-surface uppercase">Order Acceptance & Payment Systems</h2>
+                </div>
+                <div class="space-y-4 text-on-surface-variant font-body leading-relaxed text-base">
+                    <p>All items added to check-out are subject to live stock availability and final confirmation protocols. We reserve explicit mandates to block, void, or override any purchase commands suspected of fraudulent triggers, bulk scalping scripts, or system-side pricing anomalies.</p>
+                    <p>Payments must be finalized using authorized electronic gateways or verification channels available at checkout. Orders transition to a confirmed queue only after complete clearance verification clears our accounting systems.</p>
+                </div>
+            </article>
+
+            <!-- Section 03 -->
+            <article class="section-anchor group" id="shipping-dispatch">
+                <div class="flex items-baseline gap-4 mb-6">
+                    <span class="font-mono text-primary text-xl font-bold">03.0</span>
+                    <h2 class="text-3xl font-display font-bold tracking-tight text-on-surface uppercase">Logistics Flow & Dispatch Pipeline</h2>
+                </div>
+                <div class="bg-surface-container-low rounded-2xl p-6 border border-outline-variant/10 space-y-6">
+                    <div>
+                        <h4 class="font-headline font-bold text-lg text-primary mb-2">1. Order Processing & Dispatch Matrix</h4>
+                        <p class="text-sm text-on-surface-variant leading-relaxed">All confirmed orders submitted prior to <span class="text-on-surface font-mono font-bold">12:00 PM</span> are processed and handed over to logistics partners on the <span class="text-[#ecd7ff] font-semibold">same business day</span>. Delays originating from localized courier service exceptions or catastrophic network faults remain outside our structural liability.</p>
+                        <p class="text-sm text-on-surface-variant leading-relaxed mt-2">Orders registered after <span class="text-on-surface font-mono font-bold">12:00 PM</span> are standardly queued for dispatch on the next consecutive business day.</p>
+                    </div>
+                    
+                    <div class="border-t border-outline-variant/10 pt-4">
+                        <h4 class="font-headline font-bold text-lg text-primary mb-2">2. Delivery Timeline Manifest</h4>
+                        <div class="grid md:grid-cols-2 gap-4 my-2">
+                            <div class="p-4 bg-surface-container rounded-xl border border-outline-variant/5">
+                                <span class="text-xs font-mono text-outline block">REGULAR DISTRIBUTIONS</span>
+                                <span class="text-xl font-display font-bold text-on-surface">3–7 Business Days</span>
+                            </div>
+                            <div class="p-4 bg-surface-container rounded-xl border border-outline-variant/5">
+                                <span class="text-xs font-mono text-outline block">PRE-ORDER ACQUISITIONS</span>
+                                <span class="text-xl font-display font-bold text-on-surface">20–40 Business Days</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-outline leading-relaxed">Please note delivery duration targets drift flexibly relative to the geographic node, fulfillment efficiency, bad weather arrays, or sovereign holidays. Tracking pipelines compile and push data links to your profile once items break out from our central warehouse.</p>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Section 04 -->
+            <article class="section-anchor group" id="preorder-policy">
+                <div class="flex items-baseline gap-4 mb-6">
+                    <span class="font-mono text-primary text-xl font-bold">04.0</span>
+                    <h2 class="text-3xl font-display font-bold tracking-tight text-on-surface uppercase">Pre-Order Protocol Rules</h2>
+                </div>
+                <div class="p-6 glass-panel rounded-2xl border border-primary/10 relative space-y-4">
+                    <p class="text-sm text-on-surface-variant leading-relaxed">
+                        To lock allocations on special high-tier enthusiast hardware, custom mechanical keyboards, group-buy keycaps, or performance switch containers, the buyer must satisfy a strict regulatory pre-order module.
+                    </p>
+                    <ul class="space-y-3 font-body text-sm text-on-surface-variant">
+                        <li class="flex items-start gap-3">
+                            <span class="text-primary-container font-mono font-bold">[!]</span>
+                            <span>A mandatory <span class="text-primary font-bold">25% advance down payment</span> is required to validate and initialize your pre-order slot.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-primary-container font-mono font-bold">[!]</span>
+                            <span>Once the advance transaction completes, a pre-order record cannot be cancelled, modified, refunded, or parked on an arbitrary hold.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-primary-container font-mono font-bold">[!]</span>
+                            <span>Pre-ordered items lose absolute refund eligibility unless marked as <span class="text-error font-semibold">Defective on Arrival (DOA)</span>.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-primary-container font-mono font-bold">[!]</span>
+                            <span>Purchasers carry an explicit duty to open, inspect, and verify item conditions in the physical presence of the delivery agent.</span>
+                        </li>
+                    </ul>
+                </div>
+            </article>
+
+            <!-- Section 05 -->
+            <article class="section-anchor group" id="return-refund">
+                <div class="flex items-baseline gap-4 mb-6">
+                    <span class="font-mono text-primary text-xl font-bold">05.0</span>
+                    <h2 class="text-3xl font-display font-bold tracking-tight text-on-surface uppercase">Void Protocol (Returns Policy)</h2>
+                </div>
+                <div class="space-y-6 text-on-surface-variant text-base">
+                    <div class="p-6 bg-surface-container rounded-xl border border-outline-variant/10">
+                        <h4 class="font-headline font-bold text-on-surface mb-2 uppercase tracking-wide text-sm">4.1 Eligibility Window</h4>
+                        <p class="text-sm leading-relaxed text-outline">Returns move inside authorization workflows exclusively if initialized within <span class="text-on-surface font-semibold">7 days</span> calculated exactly from the verified point of delivery. Claims tracking past this time index instantly lock out. We accept returns solely for units arriving out of box with factory-born defects or transport structural damage.</p>
+                    </div>
+
+                    <div class="p-6 bg-[#93000a]/10 rounded-xl border border-error/20">
+                        <h4 class="font-headline font-bold text-error mb-2 uppercase tracking-wide text-sm flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">videocam</span> 4.2 Mandatory Evidence Requirements
+                        </h4>
+                        <p class="text-sm leading-relaxed">
+                            An uninterrupted, clear, and unedited <span class="text-on-surface font-bold underline decoration-error">unboxing video</span> captured from the immediate point of packet seal-breaching until absolute product exposure is strictly required to pass claim evaluations. 
+                        </p>
+                        <p class="text-xs mt-2 text-error/80">
+                            Failure to capture valid video capture, showing editing artifacts, or revealing package opening before camera initialization automatically invalidates the application. If structural data implies deterioration occurred post-delivery, the file is dropped.
+                        </p>
+                    </div>
+
+                    <div class="p-6 bg-surface-container rounded-xl border border-outline-variant/10">
+                        <h4 class="font-headline font-bold text-on-surface mb-2 uppercase tracking-wide text-sm">4.3 Physical Status Criteria</h4>
+                        <p class="text-sm leading-relaxed text-outline">Returned equipment must match unused parameters, presenting its pristine initial state, and complete original factory packaging boxes, interior static guards, instructions manual components, and bundled tools. Deviating variations fail review metrics and get sent back at user expense.</p>
+                    </div>
+
+                    <div class="p-6 bg-surface-container-low rounded-xl border border-outline-variant/10">
+                        <h4 class="font-headline font-bold text-primary mb-2 uppercase tracking-wide text-sm">4.4 Absolute Non-Returnable / Non-Exchangeable Conditions</h4>
+                        <ul class="list-disc ml-4 space-y-2 text-xs text-outline">
+                            <li>Subjective cognitive change of mind or aesthetic shift in personal taste.</li>
+                            <li>Slight color value mutations, spectrum alterations, or coating finish gradients resulting from flash photography, studio light calibration, display hardware rendering specs, or processing metallurgy techniques.</li>
+                            <li>Minor aesthetic or surface tooling variances that produce zero interference against regular hardware operation.</li>
+                            <li>Damage, scratches, circuit shorts, or fractures sustained via user handling after delivery signatures clear.</li>
+                            <li>Omission or failure to provide valid unboxing media verification files.</li>
+                        </ul>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Section 06 -->
+            <article class="section-anchor group" id="color-disclaimer">
+                <div class="flex items-baseline gap-4 mb-6">
+                    <span class="font-mono text-primary text-xl font-bold">06.0</span>
+                    <h2 class="text-3xl font-display font-bold tracking-tight text-on-surface uppercase">Color & Manufacturing Disclaimers</h2>
+                </div>
+                <div class="space-y-4 text-on-surface-variant font-body leading-relaxed text-base">
+                    <p>Marketing renders, asset pictures, and display photos exist solely as a digital reference anchor. Minor color anomalies and texturing spectrum drifts happen naturally via ambient photo shoots, user-end display panels, panel panel variations, or factory anodization chemistry runs. </p>
+                    <p>These minor anomalies align standardly inside structural norms and are structurally barred from registering as a product defect or an initialization key for returns.</p>
+                </div>
+            </article>
+
+            <!-- Section 07 -->
+            <article class="section-anchor group" id="liability-policy">
+                <div class="flex items-baseline gap-4 mb-6">
+                    <span class="font-mono text-primary text-xl font-bold">07.0</span>
+                    <h2 class="text-3xl font-display font-bold tracking-tight text-on-surface uppercase">Limitations of Liability</h2>
+                </div>
+                <div class="p-6 bg-surface-container-highest/20 rounded-xl border border-outline-variant/10 text-sm leading-relaxed text-on-surface-variant">
+                    Liability Limitation
+
+The Geek Shop shall not be held responsible for delays arising from courier service disruptions, customs inspections, adverse weather conditions, public holidays, force majeure events, or other circumstances beyond our reasonable control. Delivery timelines provided on this website are estimates and may vary depending on destination and logistics conditions.
+
+The Geek Shop is not liable for damage, malfunction, or performance issues resulting from customer-performed modifications, improper installation, misuse, unauthorized repairs, or alterations to products after delivery, including custom switch soldering or other hardware modifications.
+
+To the maximum extent permitted by applicable law, The Geek Shop's total liability for any claim relating to a purchased product shall not exceed the amount paid by the customer for that specific product.
+
+                </div>
+            </article>
+
+            <!-- Section 08 -->
+            <article class="section-anchor group" id="governing-law">
+                <div class="flex items-baseline gap-4 mb-6">
+                    <span class="font-mono text-primary text-xl font-bold">08.0</span>
+                    <h2 class="text-3xl font-display font-bold tracking-tight text-on-surface uppercase">Governing Law</h2>
+                </div>
+                <div class="space-y-4 text-on-surface-variant font-body leading-relaxed text-base">
+                    <p>These terms, together with all transaction parameters on the platform, are bounded, governed, and formatted in total agreement under the judicial legislation framework of <span class="text-on-surface font-semibold">Bangladesh</span>.</p>
+                    <p>Any unresolved disputes, legal claims, or mediation files targeting our operations fall completely under the singular territorial jurisdiction of the courts of Bangladesh.</p>
+                </div>
+            </article>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-slate-950 w-full py-12 px-8 border-t border-white/5 bg-slate-900">
+<div class="flex flex-col md:flex-row justify-between items-center gap-8 max-w-screen-2xl mx-auto font-['Inter'] text-xs tracking-widest text-slate-500">
+<div class="font-['Space_Grotesk'] text-lg font-bold text-slate-200">
+                THE GEEK SHOP
+            </div>
+<div class="flex gap-8">
+<a class="text-slate-600 hover:text-purple-300 transition-opacity opacity-80 hover:opacity-100" href="termsandconditions.html">Terms and Conditions</a>
+<a class="text-slate-600 hover:text-purple-300 transition-opacity opacity-80 hover:opacity-100" href="https://www.facebook.com/thegeek.shop0">Facebook</a>
+<a class="text-slate-600 hover:text-purple-300 transition-opacity opacity-80 hover:opacity-100" href="https://www.instagram.com/thegeek.shop0">Instagram</a>
+<a class="text-slate-600 hover:text-purple-300 transition-opacity opacity-80 hover:opacity-100" href="https://wa.me/01960902526">WhatsApp</a>
+</div>
+<div class="opacity-80">
+                © 2026 THE GEEK SHOP. 
+            </div>
+</div>
+</footer>
+<script>
+    // Smooth scroll and active navigation tracking framework
+    const sections = document.querySelectorAll('.section-anchor');
+    const navLinks = document.querySelectorAll('#tocNavbar a');
+
+    window.addEventListener('scroll', () => {
+        let currentSectionId = "";
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            if (window.pageYOffset >= (sectionTop - 160)) {
+                currentSectionId = section.getAttribute('id');
+            }
+        });
+
+        navLinks.forEach(link => {
+            link.classList.remove('bg-surface-container-high/50', 'text-primary', 'border-l-2', 'border-primary', 'shadow-sm');
+            link.classList.add('hover:bg-surface-container-high/30', 'text-outline');
+            if (link.getAttribute('href').includes(currentSectionId)) {
+                link.classList.remove('hover:bg-surface-container-high/30', 'text-outline');
+                link.classList.add('bg-surface-container-high/50', 'text-primary', 'border-l-2', 'border-primary', 'shadow-sm');
+            }
+        });
+    });
+
+    navLinks.forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+
+    // High-fidelity multi-page PDF generation implementation
+    document.getElementById('downloadPdfBtn').addEventListener('click', async () => {
+        const button = document.getElementById('downloadPdfBtn');
+        button.innerText = "GENERATING...";
+        button.disabled = true;
+
+        try {
+            const { jsPDF } = window.jspdf;
+            const originalContainer = document.getElementById('legalArticlesContainer');
+            
+            // Build an off-screen print-optimized node to prevent scrollbar cuts and rendering skew
+            const printTarget = document.createElement('div');
+            printTarget.className = 'pdf-print-mode font-body';
+            printTarget.innerHTML = `
+                <div style="font-family:'Space Grotesk',sans-serif; margin-bottom: 40px; border-b: 2px solid #d8b4fe; padding-bottom: 20px;">
+                    <h1 style="font-size: 36px; font-weight: 900; color: #ecd7ff; margin: 0;">THE GEEK SHOP</h1>
+                    <p style="font-size: 14px; color: #968e9a; margin: 5px 0 0 0; font-family: monospace;">LEGAL_PROTOCOL // TERMS & CONDITIONS</p>
+                    <p style="font-size: 11px; color: #968e9a; margin: 2px 0 0 0;">Last Updated: 24 June 2026</p>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 30px;">
+                    ${originalContainer.innerHTML}
+                </div>
+            `;
+            
+            // Stylize standard elements cleanly for internal canvas tracking
+            printTarget.querySelectorAll('.section-anchor').forEach(el => el.style.scrollMarginTop = '0px');
+            document.body.appendChild(printTarget);
+
+            // Shift element way out of view to avoid browser jumping
+            printTarget.style.position = 'absolute';
+            printTarget.style.left = '-9999px';
+            printTarget.style.top = '0px';
+
+            const canvas = await html2canvas(printTarget, {
+                scale: 2, // Retain sharp, vectorized text definitions
+                useCORS: true,
+                backgroundColor: '#070e1d',
+                logging: false
+            });
+
+            // Clean down temporary print target node
+            document.body.removeChild(printTarget);
+
+            const imgData = canvas.toDataURL('image/png');
+            
+            // Map dimensions explicitly to standard standard A4 templates
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = 210;
+            const pdfPageHeight = 297;
+            const imgWidth = pdfWidth;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            
+            let totalHeightLeft = imgHeight;
+            let currentVerticalPosition = 0;
+
+            // Loop slice and append distinct vertical zones to separate pages smoothly
+            pdf.addImage(imgData, 'PNG', 0, currentVerticalPosition, imgWidth, imgHeight, undefined, 'FAST');
+            totalHeightLeft -= pdfPageHeight;
+
+            while (totalHeightLeft > 0) {
+                currentVerticalPosition -= pdfPageHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 0, currentVerticalPosition, imgWidth, imgHeight, undefined, 'FAST');
+                totalHeightLeft -= pdfPageHeight;
+            }
+
+            pdf.save('The-Geek-Shop-Terms-And-Conditions.pdf');
+        } catch (error) {
+            console.error("PDF generation execution pipeline error:", error);
+            alert("Failed to render PDF protocol down to storage. Please try again.");
+        } finally {
+            button.innerHTML = `<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">file_download</span> DOWNLOAD PDF`;
+            button.disabled = false;
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,229 +1,183 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="dark" lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <meta name="description" content="" id="meta-description">
-  <title></title>
+  <title>Loading Product...</title>
   <link rel="icon" type="image/x-icon" href="logo t.png"> 
-  <link rel="canonical" id="canonical-link" href="">
-  <link rel="stylesheet" href="style.css">
-  <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
-    import { getAuth } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-    import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+  
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "primary-fixed-dim": "#dbb8ff", "on-primary": "#3f2160", "on-secondary-fixed": "#181a2b",
+            "background": "#0c1322", "surface-container-lowest": "#070e1d", "surface-container": "#191f2f",
+            "on-surface": "#dce2f7", "surface-variant": "#2e3545", "surface": "#0c1322",
+            "on-primary-fixed": "#29074a", "surface-container-low": "#141b2b",
+            "surface-container-highest": "#2e3545", "outline": "#968e9a", "on-surface-variant": "#cdc3d0",
+            "primary-fixed": "#efdbff", "surface-container-high": "#232a3a", "primary": "#ecd7ff",
+            "primary-container": "#d8b4fe", "outline-variant": "#4a454f"
+          },
+          "fontFamily": {
+            "headline": ["Space Grotesk"], "display": ["Space Grotesk"], "body": ["Inter"]
+          }
+        }
+      }
+    }
   </script>
-  <script type="module" src="script.js"></script>
+  <style>
+    .kinetic-grid {
+      background-image: linear-gradient(to right, rgba(236, 215, 255, 0.05) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(236, 215, 255, 0.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+  </style>
 </head>
-<body>
-  <header class="site-header">
-      <nav>
-      <a href="index.html" class="logo">
-        <img src="logo.png" alt="The Geek Shop Logo" style="height: 40px;">
+
+<body class="bg-surface font-body text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+
+  <header class="bg-[#0c1322]/60 backdrop-blur-xl sticky top-0 z-[60] border-b border-white/5">
+    <div class="flex justify-between items-center px-8 py-4 w-full max-w-screen-2xl mx-auto font-['Space_Grotesk'] tracking-tight">
+      <a href="index.html" class="text-2xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-purple-200 to-purple-400">
+        The Geek Shop
       </a>
-      <div class="nav-links">
-        <a href="products.html">Products</a>
-        <a href="status.html">Order Status</a>
-        <a id="cart-link" style="cursor: pointer;">Cart (<span id="cart-count">0</span>)</a>
+      
+      <div class="hidden md:flex items-center relative w-96">
+        <span class="material-symbols-outlined absolute left-3 text-slate-500 text-sm">search</span>
+        <input type="text" id="global-search-input" placeholder="Search across store..." class="w-full bg-surface-container-lowest border border-white/5 rounded-xl pl-9 pr-4 py-2 text-sm text-on-surface focus:outline-none focus:border-primary/50 focus:ring-0 placeholder:text-outline-variant transition-all">
       </div>
-    </nav>
+
+      <nav class="hidden md:flex items-center space-x-8">
+        <a class="text-slate-400 hover:text-purple-200 transition-colors" href="products.html">Products</a>
+        <a class="text-slate-400 hover:text-purple-200 transition-colors" href="status.html">Order Status</a>
+      </nav>
+      <div class="flex items-center space-x-6 text-purple-300">
+        <a id="cart-link" class="flex items-center space-x-1 hover:text-purple-200 transition-colors cursor-pointer active:scale-95 duration-150 p-2 bg-surface-container-low rounded-xl border border-white/5 hover:bg-surface-variant">
+          <span class="material-symbols-outlined">shopping_cart</span>
+          <span class="text-xs font-bold font-display bg-primary text-on-primary-fixed px-2 py-0.5 rounded-full" id="cart-count">0</span>
+        </a>
+      </div>
+    </div>
   </header>
 
-  <main class="container">
-    <div id="product-section" class="product-detail">
-      <div class="product-images">
-        <img id="main-image" src="" alt="">
-        <div id="thumbnail-gallery" class="thumbnail-gallery"></div>
+  <main class="relative kinetic-grid min-h-screen">
+    <section id="product-section" class="max-w-screen-2xl mx-auto px-8 py-12 lg:py-20 grid grid-cols-1 lg:grid-cols-12 gap-16">
+      
+      <div class="lg:col-span-7 space-y-6 product-images">
+        <div class="relative group aspect-square lg:aspect-[4/3] bg-surface-container-low overflow-hidden rounded-xl border border-outline-variant/10">
+          <img id="main-image" alt="" class="w-full h-full object-cover transform transition-transform duration-700"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-surface/40 to-transparent pointer-events-none"></div>
+        </div>
+        <div id="thumbnail-gallery" class="thumbnail-gallery grid grid-cols-4 gap-4"></div>
       </div>
-      <div class="product-info">
-        <h1 id="product-name"></h1>
-        <div id="product-color" class="muted"></div>
-        <div id="product-price" class="price"></div>
-        <div id="product-badges" class="badges"></div>
-        <p id="product-spec"></p>
-        <div id="order-row" class="order-row"></div>
-      </div>
-    </div>
 
-    <section class="product-description-section">
-      <h2>Description</h2>
-      <div id="product-detailed-desc" class="description-content"></div>
+      <div class="lg:col-span-5 flex flex-col justify-center space-y-8 product-info">
+        <div class="space-y-4">
+          <div id="product-badges" class="badges flex flex-wrap gap-3"></div>
+          <h1 id="product-name" class="text-4xl lg:text-6xl font-display font-bold tracking-tighter leading-none text-transparent bg-clip-text bg-gradient-to-r from-on-surface to-primary-fixed-dim"></h1>
+          <div id="product-price" class="price text-primary text-3xl font-display font-light"></div>
+        </div>
+
+        <div class="space-y-6">
+          <p id="product-meta-desc" class="text-on-surface-variant text-lg leading-relaxed max-w-md"></p>
+          
+          <div id="order-row" class="order-row flex flex-col gap-4 pt-4"></div>
+        </div>
+      </div>
     </section>
 
-    <h2>Other Products</h2>
-    <div id="other-products" class="product-list new-hot-list"></div>
+    <section class="max-w-screen-2xl mx-auto px-8 py-24 border-t border-outline-variant/10">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-20">
+        
+        <div class="space-y-8">
+          <h2 class="text-3xl font-display font-bold tracking-tight">The Kinetic Experience</h2>
+          <div id="product-detailed-desc" class="space-y-6 text-on-surface-variant leading-loose font-light">
+            </div>
+        </div>
+        
+        <div class="bg-surface-container-low rounded-2xl p-10 border border-outline-variant/10 h-fit">
+          <h3 class="text-sm font-bold tracking-[0.3em] uppercase text-primary mb-10">Technical Specifications</h3>
+          <div id="product-specs-grid" class="grid grid-cols-1 gap-8">
+            </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="max-w-screen-2xl mx-auto px-8 py-16 border-t border-outline-variant/10 mb-24">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div class="space-y-2">
+          <span class="text-[10px] font-bold uppercase tracking-[0.4em] text-primary">Lab Recommendations</span>
+          <h2 class="text-4xl font-display font-bold">Other Products</h2>
+        </div>
+        <a href="products.html" class="flex items-center gap-2 text-primary font-bold tracking-widest text-[10px] uppercase hover:gap-4 transition-all">
+          View Catalog <span class="material-symbols-outlined text-sm">arrow_forward</span>
+        </a>
+      </div>
+      <div id="other-products" class="product-list new-hot-list grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"></div>
+    </section>
   </main>
 
-  <div id="image-viewer" class="image-viewer">
-    <button id="close-viewer" class="close-viewer">&times;</button>
-    <img id="viewer-img" src="" alt="">
+  <div id="image-viewer" class="image-viewer fixed inset-0 z-[100] bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <button id="close-viewer" class="close-viewer absolute top-6 right-6 text-slate-400 hover:text-white transition-colors text-4xl">&times;</button>
+    <img id="viewer-img" src="" alt="" class="max-w-full max-h-[90vh] object-contain rounded-lg">
   </div>
 
-  <div id="checkout-modal" class="modal">
-    <div class="card modal-content">
-      <div class="modal-header">
-        <h2>Checkout</h2>
-        <button id="close-modal-btn">Close</button>
-      </div>
-      <form id="checkout-form" class="form">
-        <input type="hidden" id="co-product-id">
-        <div class="row">
-          <div>
-            <label>Product Name</label>
-            <input id="co-product-name" readonly>
-          </div>
-          <div>
-            <label>Color</label>
-            <input id="co-color" readonly>
-          </div>
-        </div>
-        <div class="row">
-          <div>
-            <label>Price (tk)</label>
-            <input id="co-price" readonly>
-            <input type="hidden" id="co-unit-price-raw">
-            <input type="hidden" id="co-available-stock">
-          </div>
-          <div>
-            <label>Quantity</label>
-            <input id="co-qty" type="number" min="1" value="1">
-          </div>
-        </div>
-        <div class="row">
-          <div>
-            <label>Delivery</label>
-            <input id="co-delivery" readonly>
-          </div>
-          <div>
-            <label>Total (tk)</label>
-            <input id="co-total" readonly>
-          </div>
-        </div>
-        <div class="row">
-          <div>
-            <label>Name</label>
-            <input id="co-name" required>
-          </div>
-          <div>
-            <label>Phone</label>
-            <input id="co-phone" type="tel" required>
-          </div>
-        </div>
-        <div>
-          <label>Address</label>
-          <textarea id="co-address" required></textarea>
-        </div>
-        <div class="row">
-          <div>
-            <label>Payment Method</label>
-            <select id="co-payment" required>
-              <option value="">Select</option>
-              <option value="Cash on Delivery">Cash on Delivery</option>
-              <option value="Bkash">Bkash</option>
-            </select>
-          </div>
-          <div>
-            <label>Pay to (Send money)</label>
-            <input id="co-payment-number" readonly>
-          </div>
-        </div>
-        <div class="row">
-          <div>
-            <label>Pay Now (tk)</label>
-            <input id="co-pay-now" readonly>
-          </div>
-          <div>
-            <label>Due Amount (tk)</label>
-            <input id="co-due-amount" readonly>
-          </div>
-        </div>
-        <div>
-          <label>Transaction ID</label>
-          <input id="co-txn">
-        </div>
-        <div>
-          <label>
-            <input type="checkbox" id="co-policy" required>
-            I agree to the <a href="status.html">Order Policy</a>
-          </label>
-        </div>
-        <div>
-          <p id="co-note" class="muted"></p>
-        </div>
-        <button id="place-order-btn" type="submit">Place Order</button>
-      </form>
+  <div id="cart-slider" class="cart-slider fixed top-0 right-0 h-full w-full max-w-md bg-surface-container/95 backdrop-blur-xl border-l border-white/5 shadow-2xl z-[80] transform translate-x-full transition-transform duration-300 flex flex-col hidden">
+    <div class="p-6 border-b border-outline-variant/10 flex justify-between items-center">
+      <h2 class="text-xl font-display font-bold">Shopping Cart</h2>
+      <button id="close-cart" class="close-viewer text-2xl text-slate-400 hover:text-white transition-colors">&times;</button>
+    </div>
+    <div id="cart-items" class="cart-items flex-1 overflow-y-auto p-6 space-y-4"></div>
+    <div id="cart-empty" class="muted text-center py-12 text-slate-400 hidden">Your cart is empty</div>
+    <div class="p-6 bg-surface-container-low border-t border-outline-variant/10 space-y-4">
+      <div id="cart-total" class="cart-total text-right text-lg font-display"><strong>Total: ৳0</strong></div>
+      <button id="checkout-cart" class="checkout-cart-btn w-full py-4 bg-gradient-to-br from-primary to-primary-container text-on-primary-fixed font-display font-bold text-center rounded-xl hover:shadow-[0_0_20px_rgba(236,215,255,0.2)] transition-all">
+        Checkout
+      </button>
     </div>
   </div>
 
-
-  <!-- Cart Slider -->
-  <div id="cart-slider" class="cart-slider">
-    <button id="close-cart" class="close-viewer">&times;</button>
-    <h2>Shopping Cart</h2>
-    <div id="cart-items" class="cart-items"></div>
-    <div id="cart-total" class="cart-total"><strong>Total: ৳0</strong></div>
-    <button id="checkout-cart" class="checkout-cart-btn">Checkout</button>
-    <div id="cart-empty" class="muted" style="text-align:center; padding:20px; display:none;">Your cart is empty</div>
-  </div>
-
-  <!-- Cart Checkout Modal -->
-  <div id="cart-checkout-modal" class="modal">
-    <div class="card modal-content">
-      <div class="modal-header">
-        <h2>Checkout (Cart)</h2>
-        <button id="cart-close-modal-btn">Close</button>
-      </div>
-      <form id="cart-checkout-form" class="form">
-        <div id="cart-co-items"></div>
-        <div class="row">
-          <div><label>Delivery Fee</label><input id="cart-co-delivery" readonly></div>
-          <div><label>Total Amount</label><input id="cart-co-total" readonly></div>
-        </div>
-        <div class="row">
-          <div><label>Name</label><input id="cart-co-name" required></div>
-          <div><label>Phone</label><input id="cart-co-phone" type="tel" required></div>
-        </div>
-        <div><label>Address</label><textarea id="cart-co-address" required></textarea></div>
-        <div class="row">
-          <div><label>Payment Method</label>
-            <select id="cart-co-payment" required>
-              <option value="">Select</option>
-              <option value="Cash on Delivery">Cash on Delivery</option>
-              <option value="Bkash">Bkash</option>
-            </select>
-          </div>
-          <div><label>Pay to</label><input id="cart-co-payment-number" readonly></div>
-        </div>
-        <div class="row">
-          <div><label>Pay Now (tk)</label><input id="cart-co-pay-now" readonly></div>
-          <div><label>Due Amount (tk)</label><input id="cart-co-due-amount" readonly></div>
-        </div>
-        <div><label>Transaction ID </label><input id="cart-co-txn"></div>
-        <div><label><input type="checkbox" id="cart-co-policy" required> I agree to the <a href="status.html">Order Policy</a></label></div>
-          <p id="cart-co-note" class="muted"></p>
-        <button id="cart-place-order-btn" type="submit">Place Order</button>
-      </form>
-    </div>
-  
-  </div>
-
-<footer style="background-color: #e8e8ff; padding: 20px; text-align: center; height: 90px; color: #000000; font-family: Arial, sans-serif;">
-  <div>
-    <a href="https://www.facebook.com/thegeek.shop0" target="_blank" style="margin: 0 10px;">
-      <img src="facebook.png" alt="Facebook" style="width: 30px; height: 30px;">
+  <nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 md:hidden bg-[#0c1322]/90 backdrop-blur-lg border-t border-white/5 z-50">
+    <a class="flex flex-col items-center justify-center text-slate-500 px-4 py-1" href="index.html">
+      <span class="material-symbols-outlined">home</span>
+      <span class="text-[10px] font-bold uppercase tracking-tighter">Home</span>
     </a>
-    <a href="https://www.instagram.com/thegeek.shop0" target="_blank" style="margin: 0 10px;">
-      <img src="instagram.png" alt="Instagram" style="width: 30px; height: 30px;">
+    <a class="flex flex-col items-center justify-center bg-purple-500/20 text-purple-200 rounded-xl px-4 py-1" href="products.html">
+      <span class="material-symbols-outlined">grid_view</span>
+      <span class="text-[10px] font-bold uppercase tracking-tighter">Shop</span>
     </a>
-    <a href="https://wa.me/01960902526" target="_blank" style="margin: 0 10px;">
-      <img src="whatsapp.png" alt="WhatsApp" style="width: 30px; height: 30px;">
+    <a class="flex flex-col items-center justify-center text-slate-500 px-4 py-1" href="status.html">
+      <span class="material-symbols-outlined">description</span>
+      <span class="text-[10px] font-bold uppercase tracking-tighter">Status</span>
     </a>
-  </div>
-  <p>&copy; All rights reserved by The Geek Shop</p>
+  </nav>
+
+<footer class="bg-slate-950 w-full py-12 px-8 border-t border-white/5 bg-slate-900">
+<div class="flex flex-col md:flex-row justify-between items-center gap-8 max-w-screen-2xl mx-auto font-['Inter'] text-xs tracking-widest text-slate-500">
+<div class="font-['Space_Grotesk'] text-lg font-bold text-slate-200">
+                THE GEEK SHOP
+            </div>
+<div class="flex gap-8">
+<a class="text-slate-600 hover:text-purple-300 transition-opacity opacity-80 hover:opacity-100" href="termsandconditions.html">Terms and Conditions</a>
+<a class="text-slate-600 hover:text-purple-300 transition-opacity opacity-80 hover:opacity-100" href="https://www.facebook.com/thegeek.shop0">Facebook</a>
+<a class="text-slate-600 hover:text-purple-300 transition-opacity opacity-80 hover:opacity-100" href="https://www.instagram.com/thegeek.shop0">Instagram</a>
+<a class="text-slate-600 hover:text-purple-300 transition-opacity opacity-80 hover:opacity-100" href="https://wa.me/01960902526">WhatsApp</a>
+</div>
+<div class="opacity-80">
+                © 2026 THE GEEK SHOP. 
+            </div>
+</div>
 </footer>
+
+  <script type="module" src="script.js"></script>
 </body>
-
 </html>
-
-
-

@@ -1,174 +1,235 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="dark" lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin</title>
-  <link rel="stylesheet" href="style.css">
-  <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
-    import { getAuth } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-    import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>The Geek Shop | Lab Command Center</title>
+  <link rel="icon" type="image/x-icon" href="logo t.png"> 
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  
+  <style>
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+    body { font-family: 'Inter', sans-serif; background-color: #0c1322; color: #dce2f7; overflow-x: hidden; }
+    h1, h2, h3, .font-display { font-family: 'Space Grotesk', sans-serif; }
+    
+    /* Scrollbar cleanup */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #070e1d; }
+    ::-webkit-scrollbar-thumb { background: #2e3545; border-radius: 10px; }
+  </style>
+
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container": "#191f2f", "surface-variant": "#2e3545", "surface-container-low": "#141b2b", 
+            "inverse-surface": "#dce2f7", "surface-container-highest": "#2e3545", "surface": "#0c1322", 
+            "surface-container-high": "#232a3a", "outline": "#968e9a", "background": "#0c1322", 
+            "outline-variant": "#4a454f", "surface-container-lowest": "#070e1d", "on-surface": "#dce2f7", 
+            "primary": "#ecd7ff", "primary-fixed": "#efdbff", "primary-container": "#d8b4fe", "on-primary-fixed": "#29074a"
+          }
+        }
+      }
+    }
   </script>
-  <script type="module" src="script.js"></script>
 </head>
-<body>
-  <header class="site-header">
-     <nav>
-      <a href="index.html" class="logo">
-        <img src="logo.png" alt="The Geek Shop Logo" style="height: 40px;">
-      </a>
-      <div class="nav-links">
-        <a href="products.html">Products</a>
-        <a href="status.html">Order Status</a>
-        <a href="admin.html">Admin</a>
+
+<body class="bg-background selection:bg-primary/30 min-h-screen flex flex-col">
+
+  <header class="bg-[#0c1322]/80 backdrop-blur-xl sticky top-0 z-[60] border-b border-white/5">
+    <div class="flex justify-between items-center px-6 lg:px-8 py-4 w-full max-w-screen-2xl mx-auto">
+      <div class="flex items-center gap-3 font-display text-xl font-bold tracking-tight text-white">
+        <span class="material-symbols-outlined text-primary">admin_panel_settings</span>
+        Lab Command Center
       </div>
-    </nav>
+      <div class="flex items-center gap-4">
+        <a href="index.html" class="text-xs text-outline hover:text-white transition-colors flex items-center gap-1"><span class="material-symbols-outlined text-sm">storefront</span> Storefront</a>
+        <button id="logout-btn" class="hidden text-xs text-red-400 hover:text-red-300 transition-colors bg-red-900/20 px-4 py-2 rounded-lg font-bold uppercase tracking-widest">Logout</button>
+      </div>
+    </div>
   </header>
 
-  <main class="container">
-    <div id="login-panel" class="card" style="display: none;">
-      <h2>Admin Login</h2>
-      <form id="login-form" class="form">
+  <main class="flex-1 w-full max-w-screen-2xl mx-auto px-6 lg:px-8 py-8 lg:py-12">
+    
+    <section id="login-section" class="max-w-md mx-auto mt-20 bg-surface-container border border-white/5 p-8 rounded-2xl shadow-2xl">
+      <div class="text-center mb-8">
+        <span class="material-symbols-outlined text-5xl text-primary mb-2">lock</span>
+        <h2 class="text-2xl font-display font-bold">Admin Authentication</h2>
+        <p class="text-sm text-outline mt-1">Authorized personnel only.</p>
+      </div>
+      <form id="login-form" class="space-y-4">
         <div>
-          <label>Email</label>
-          <input id="admin-email" type="email" required>
+          <label class="block text-xs uppercase tracking-widest text-outline mb-1.5">Admin Email</label>
+          <input type="email" id="email" required class="w-full bg-surface-container-low border border-white/10 rounded-xl px-4 py-3 text-on-surface focus:border-primary/50 focus:ring-0 transition-all">
         </div>
         <div>
-          <label>Password</label>
-          <input id="admin-pass" type="password" required>
+          <label class="block text-xs uppercase tracking-widest text-outline mb-1.5">Secure Password</label>
+          <input type="password" id="password" required class="w-full bg-surface-container-low border border-white/10 rounded-xl px-4 py-3 text-on-surface focus:border-primary/50 focus:ring-0 transition-all">
         </div>
-        <button type="submit">Login</button>
+        <button type="submit" class="w-full py-4 mt-4 bg-primary text-on-primary-fixed font-bold rounded-xl hover:shadow-[0_0_20px_rgba(236,215,255,0.2)] transition-all uppercase tracking-widest text-sm">
+          Initialize Access
+        </button>
       </form>
-    </div>
+    </section>
 
-    <div id="admin-panel" class="card" style="display: none;">
-      <div class="panel-header">
-        <h2>Admin Panel</h2>
-        <button onclick="logoutAdmin()">Logout</button>
+    <section id="dashboard-section" class="hidden h-full flex flex-col">
+      
+      <div class="flex gap-4 mb-8 border-b border-white/5 pb-4">
+        <button onclick="switchMasterTab('inventory')" id="master-tab-inventory" class="text-primary font-display font-bold tracking-widest uppercase text-sm border-b-2 border-primary pb-2 px-2 flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-base">inventory_2</span> Inventory Database
+        </button>
+        <button onclick="switchMasterTab('orders')" id="master-tab-orders" class="text-outline hover:text-slate-200 font-display font-bold tracking-widest uppercase text-sm border-b-2 border-transparent pb-2 px-2 flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-base">local_shipping</span> Order Manifests
+        </button>
       </div>
 
-      <h2>Add Product</h2>
-      <form id="add-product-form" class="form">
-        <div class="row">
-          <div>
-            <label>Name</label>
-            <input id="add-name" required>
-          </div>
-          <div>
-            <label>Price (tk)</label>
-            <input id="add-price" required>
-          </div>
+      <div id="inventory-tab" class="master-view space-y-6">
+        
+        <div class="flex gap-2 bg-surface-container-low p-1.5 rounded-xl border border-white/5 w-fit">
+          <button id="tab-add" class="px-6 py-2 text-xs font-bold uppercase tracking-widest rounded-lg bg-surface-container text-primary transition-all">Add Product</button>
+          <button id="tab-manage" class="px-6 py-2 text-xs font-bold uppercase tracking-widest rounded-lg text-outline hover:text-slate-200 transition-all border border-transparent">Manage Catalog</button>
         </div>
-        <div class="row">
-          <div>
-            <label>Discount (tk)</label>
-            <input id="add-discount" value="0">
-          </div>
-          <div>
-            <label>Image URLs (comma-separated)</label>
-            <input id="add-images" required>
-          </div>
-        </div>
-        <div class="row">
-          <div>
-            <label>Category</label>
-            <select id="add-category" required>
+
+        <div id="view-add" class="bg-surface-container border border-white/5 rounded-2xl p-6 lg:p-8">
+          <h2 id="form-title" class="text-2xl font-display font-bold mb-6 text-primary">Add New Product</h2>
+          
+          <form id="product-form" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6 bg-surface-container-low rounded-xl border border-white/5">
+              <div class="col-span-1 md:col-span-2 lg:col-span-3">
+                <label class="block text-xs uppercase tracking-widest text-outline mb-1.5">Product Name</label>
+                <input id="p-name" required class="w-full bg-surface-container-lowest border border-white/10 rounded-xl px-4 py-2 text-on-surface focus:border-primary/50 focus:ring-0">
+              </div>
+              
+             <div>
+  <label class="block text-xs uppercase tracking-widest text-outline mb-1.5">Category</label>
+  <select id="p-category" required class="w-full bg-surface-container-lowest border border-white/10 rounded-xl px-4 py-2 text-on-surface focus:border-primary/50 focus:ring-0">
+    <option value="" disabled selected>Select a Category</option>
               <option value="Keycaps">Keycaps</option>
               <option value="Switches">Switches</option>
               <option value="Keyboard and Mouse">Keyboard and Mouse</option>
-              <option value="Accessories and Collectables">Accessories and Collectables</option>
-            </select>
-          </div>
-          <div>
-            <label>Color</label>
-            <input id="add-color">
-          </div>
-        </div>
-        <div class="row">
-          <div>
-            <label>Stock</label>
-            <input id="add-stock" type="number" value="0">
-          </div>
-          <div>
-            <label>Availability</label>
-            <select id="add-availability" required>
-              <option value="Ready">Ready to Order</option>
-              <option value="Pre Order">Pre Order</option>
-              <option value="Upcoming">Upcoming</option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <label><input type="checkbox" id="add-hotdeal"> Hot Deal</label>
-        </div>
-        <div>
-          <label>Specification (shown next to price)</label>
-          <textarea id="add-desc"></textarea>
-        </div>
-        <div>
-          <label>Description (full section below images)</label>
-          <textarea id="add-detailed-desc"></textarea>
-        </div>
-        <h3>SEO Optimization</h3>
-        <div>
-          <label>Meta Title</label>
-          <input id="add-meta-title" type="text" placeholder="e.g. GMK Dracula Keycaps - The Geek Shop">
-        </div>
-        <div>
-          <label>Meta Description</label>
-          <textarea id="add-meta-desc" placeholder="Short SEO description (150-160 chars)"></textarea>
-        </div>
-        <button type="submit">Add Product</button>
-      </form>
+              <option value="Accessories and Collectables">Accessories and Collectables</option>>
+  </select>
+</div>
+              <div>
+                <label class="block text-xs uppercase tracking-widest text-outline mb-1.5">Color Variant</label>
+                <input id="p-color" placeholder="e.g. Matte Black" class="w-full bg-surface-container-lowest border border-white/10 rounded-xl px-4 py-2 text-on-surface focus:border-primary/50 focus:ring-0">
+              </div>
+              <div>
+                <label class="block text-xs uppercase tracking-widest text-outline mb-1.5">Availability Phase</label>
+                <select id="p-availability" class="w-full bg-surface-container-lowest border border-white/10 rounded-xl px-4 py-2 text-on-surface focus:border-primary/50 focus:ring-0">
+                  <option value="In Stock">In Stock</option>
+                  <option value="Pre Order">Pre Order</option>
+                  <option value="Upcoming">Upcoming</option>
+                </select>
+              </div>
 
-      <h2>Products</h2>
-      <div class="table-wrapper">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th></th>
-              <th>Name</th>
-              <th>Price</th>
-              <th>Category</th>
-              <th>Color</th>
-              <th>Discount (tk)</th>
-              <th>Stock</th>
-              <th>Availability</th>
-              <th>Badge</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="products-body"></tbody>
-        </table>
+              <div>
+                <label class="block text-xs uppercase tracking-widest text-outline mb-1.5">Base Price (৳)</label>
+                <input type="number" id="p-price" required class="w-full bg-surface-container-lowest border border-white/10 rounded-xl px-4 py-2 text-on-surface focus:border-primary/50 focus:ring-0">
+              </div>
+              <div>
+                <label class="block text-xs uppercase tracking-widest text-outline mb-1.5">Discount (৳) - Optional</label>
+                <input type="number" id="p-discount" value="0" class="w-full bg-surface-container-lowest border border-white/10 rounded-xl px-4 py-2 text-on-surface focus:border-primary/50 focus:ring-0">
+              </div>
+              <div>
+                <label class="block text-xs uppercase tracking-widest text-outline mb-1.5">Inventory Stock Count</label>
+                <input type="number" id="p-stock" required class="w-full bg-surface-container-lowest border border-white/10 rounded-xl px-4 py-2 text-on-surface focus:border-primary/50 focus:ring-0">
+              </div>
+            </div>
+
+            <div class="space-y-4 p-6 bg-surface-container-low rounded-xl border border-white/5">
+              <div>
+                <label class="block text-xs uppercase tracking-widest text-outline mb-1.5">Card Description (Short)</label>
+                <textarea id="p-desc" rows="2" class="w-full bg-surface-container-lowest border border-white/10 rounded-xl px-4 py-2 text-on-surface focus:border-primary/50 focus:ring-0" placeholder="Shown on the grid cards."></textarea>
+              </div>
+              <div>
+                <label class="block text-xs uppercase tracking-widest text-outline mb-1.5">Meta Description (Hero Summary)</label>
+                <textarea id="p-meta-desc" rows="2" class="w-full bg-surface-container-lowest border border-white/10 rounded-xl px-4 py-2 text-on-surface focus:border-primary/50 focus:ring-0" placeholder="Shown directly under the title on the product page."></textarea>
+              </div>
+              <div>
+                <label class="block text-xs uppercase tracking-widest text-outline mb-1.5 flex items-center gap-2">
+                  Detailed Description (HTML Supported)
+                  <span title="You can use <p>, <br>, <strong> tags here for formatting" class="material-symbols-outlined text-sm cursor-help text-primary">info</span>
+                </label>
+                <textarea id="p-detailed-desc" rows="4" class="w-full bg-surface-container-lowest border border-white/10 rounded-xl px-4 py-2 text-on-surface focus:border-primary/50 focus:ring-0" placeholder="The long narrative on the left side of the product page."></textarea>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div class="p-6 bg-surface-container-low rounded-xl border border-white/5">
+                <label class="block text-xs uppercase tracking-widest text-outline mb-1.5 flex justify-between">
+                  <span>Technical Specifications</span>
+                  <span class="text-primary text-[10px]">(Format: Key: Value)</span>
+                </label>
+                <textarea id="p-specs" rows="6" class="w-full bg-surface-container-lowest border border-white/10 rounded-xl px-4 py-2 text-on-surface focus:border-primary/50 focus:ring-0" placeholder="Format example:&#10;Material: PBT Double-shot&#10;Switch Type: Linear&#10;Actuation: 45g"></textarea>
+                <p class="text-[10px] text-outline mt-2 leading-relaxed">Enter each spec on a new line. Always use a colon (<strong class="text-primary">:</strong>) to separate the spec name from its value.</p>
+              </div>
+
+              <div class="p-6 bg-surface-container-low rounded-xl border border-white/5 flex flex-col justify-between">
+                <div>
+                  <label class="block text-xs uppercase tracking-widest text-outline mb-1.5">Image URLs (One per line)</label>
+                  <textarea id="p-images" rows="4" class="w-full bg-surface-container-lowest border border-white/10 rounded-xl px-4 py-2 text-on-surface focus:border-primary/50 focus:ring-0" placeholder="https://imgur.com/image1.png&#10;https://imgur.com/image2.png"></textarea>
+                </div>
+                
+                <div class="flex items-center gap-3 mt-6 bg-surface-container-lowest p-4 rounded-xl border border-white/10">
+                  <input type="checkbox" id="p-hot" class="w-5 h-5 rounded border-white/20 bg-surface-container text-primary focus:ring-primary focus:ring-offset-0">
+                  <label for="p-hot" class="text-sm font-bold text-on-surface uppercase tracking-widest">Flag as Hot Deal</label>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" id="submit-btn" class="w-full py-4 bg-primary text-on-primary-fixed font-bold font-display text-lg rounded-xl hover:shadow-[0_0_20px_rgba(236,215,255,0.2)] transition-all flex items-center justify-center gap-2 uppercase tracking-widest">
+              <span class="material-symbols-outlined">add_circle</span> Add Product
+            </button>
+          </form>
+        </div>
+
+        <div id="view-manage" class="hidden space-y-4">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-display font-bold text-primary">Catalog Database</h2>
+          </div>
+          <div id="admin-products-list" class="grid grid-cols-1 gap-4">
+            <div class="p-8 text-center text-outline"><span class="material-symbols-outlined animate-spin">sync</span></div>
+          </div>
+        </div>
       </div>
 
-      <h2>Orders</h2>
-      <div class="table-wrapper">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th></th>
-              <th>Time</th>
-              <th>Product</th>
-              <th>Color</th>
-              <th>Qty</th>
-              <th>Delivery</th>
-              <th>Paid</th>
-              <th>Due</th>
-              <th>Name</th>
-              <th>Phone</th>
-              <th>Address</th>
-              <th>Payment</th>
-              <th>Txn ID</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="orders-body"></tbody>
-        </table>
+      <div id="orders-tab" class="master-view hidden space-y-4">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-display font-bold text-primary">Active Manifests</h2>
+        </div>
+        <div id="orders-list" class="grid grid-cols-1 gap-6">
+          <div class="p-8 text-center text-outline"><span class="material-symbols-outlined animate-spin">sync</span></div>
+        </div>
       </div>
-    </div>
+
+    </section>
   </main>
+
+  <script>
+    function switchMasterTab(tabName) {
+      // Hide all master views
+      document.querySelectorAll('.master-view').forEach(el => el.classList.add('hidden'));
+      
+      // Reset button styles
+      document.getElementById('master-tab-inventory').className = "text-outline hover:text-slate-200 font-display font-bold tracking-widest uppercase text-sm border-b-2 border-transparent pb-2 px-2 flex items-center gap-2 transition-all";
+      document.getElementById('master-tab-orders').className = "text-outline hover:text-slate-200 font-display font-bold tracking-widest uppercase text-sm border-b-2 border-transparent pb-2 px-2 flex items-center gap-2 transition-all";
+      
+      // Show selected and activate button
+      if (tabName === 'inventory') {
+        document.getElementById('inventory-tab').classList.remove('hidden');
+        document.getElementById('master-tab-inventory').className = "text-primary font-display font-bold tracking-widest uppercase text-sm border-b-2 border-primary pb-2 px-2 flex items-center gap-2 transition-all";
+      } else {
+        document.getElementById('orders-tab').classList.remove('hidden');
+        document.getElementById('master-tab-orders').className = "text-primary font-display font-bold tracking-widest uppercase text-sm border-b-2 border-primary pb-2 px-2 flex items-center gap-2 transition-all";
+      }
+    }
+  </script>
+
+  <script type="module" src="script.js"></script>
 </body>
 </html>
