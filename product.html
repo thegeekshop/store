@@ -32,7 +32,7 @@
       }
     }
   </script>
-  <style>
+ <style>
     .kinetic-grid {
       background-image: linear-gradient(to right, rgba(236, 215, 255, 0.05) 1px, transparent 1px),
                         linear-gradient(to bottom, rgba(236, 215, 255, 0.05) 1px, transparent 1px);
@@ -40,16 +40,68 @@
     }
     .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
 
-    /* Custom high-performance CSS hardware-accelerated shimmer effect */
-    @keyframes skeleton-shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
+    /* --- HIGH PERFORMANCE HARDWARE-ACCELERATED SHIMMER WAVE --- */
+    @keyframes shimmer-sweep {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
     }
-    .shimmer {
-      background: linear-gradient(90deg, #141b2b 25%, #232a3a 50%, #141b2b 75%) !important;
-      background-size: 200% 100% !important;
-      animation: skeleton-shimmer 1.5s infinite linear !important;
+
+    /* Base styles for placeholders explicitly typed into the HTML layout */
+    .shimmer-skeleton {
+      position: relative !important;
+      overflow: hidden !important;
+      background-color: #141b2b !important; /* matches Tailwind surface-container-low */
     }
+    .shimmer-skeleton::after {
+      content: "";
+      position: absolute;
+      top: 0; right: 0; bottom: 0; left: 0;
+      transform: translateX(-100%);
+      background-image: linear-gradient(
+        90deg,
+        rgba(236, 215, 255, 0) 0%,
+        rgba(236, 215, 255, 0.03) 20%,
+        rgba(236, 215, 255, 0.12) 50%,
+        rgba(236, 215, 255, 0.03) 80%,
+        rgba(236, 215, 255, 0) 100%
+      );
+      animation: shimmer-sweep 1.5s infinite ease-in-out;
+    }
+
+    /* Automatic rule targeting empty text fields before JS populates them */
+    #product-name:empty,
+    #product-price:empty,
+    #product-meta-desc:empty,
+    #product-detailed-desc:empty {
+      position: relative !important;
+      overflow: hidden !important;
+      background-color: #141b2b !important;
+      display: block;
+    }
+    #product-name:empty::after,
+    #product-price:empty::after,
+    #product-meta-desc:empty::after,
+    #product-detailed-desc:empty::after {
+      content: "";
+      position: absolute;
+      top: 0; right: 0; bottom: 0; left: 0;
+      transform: translateX(-100%);
+      background-image: linear-gradient(
+        90deg,
+        rgba(236, 215, 255, 0) 0%,
+        rgba(236, 215, 255, 0.03) 20%,
+        rgba(236, 215, 255, 0.12) 50%,
+        rgba(236, 215, 255, 0.03) 80%,
+        rgba(236, 215, 255, 0) 100%
+      );
+      animation: shimmer-sweep 1.5s infinite ease-in-out;
+    }
+
+    /* Giving text nodes width and height blocks ONLY when they are completely empty */
+    #product-name:empty { height: 3.5rem; width: 80%; border-radius: 0.75rem; }
+    #product-price:empty { height: 2rem; width: 30%; border-radius: 0.5rem; margin-top: 1rem; }
+    #product-meta-desc:empty { height: 4.5rem; width: 100%; border-radius: 0.75rem; margin-top: 1.5rem; }
+    #product-detailed-desc:empty { height: 10rem; width: 100%; border-radius: 1rem; }
   </style>
 </head>
 
@@ -83,45 +135,38 @@
     <section id="product-section" class="max-w-screen-2xl mx-auto px-8 py-12 lg:py-20 grid grid-cols-1 lg:grid-cols-12 gap-16">
       
       <div class="lg:col-span-7 space-y-6 product-images">
-        <div class="relative group aspect-square lg:aspect-[4/3] bg-surface-container-low overflow-hidden rounded-xl border border-outline-variant/10 shimmer">
-          <img id="main-image" alt="" class="w-full h-full object-cover transform transition-transform duration-700 opacity-0 transition-opacity"
-               onload="this.classList.remove('opacity-0'); this.parentElement.classList.remove('shimmer');" />
+        <div id="main-image-container" class="relative group aspect-square lg:aspect-[4/3] overflow-hidden rounded-xl border border-outline-variant/10 shimmer-skeleton">
+          <img id="main-image" alt="" class="w-full h-full object-cover transform transition-transform duration-700 opacity-0 transition-opacity duration-300"
+               onload="this.classList.remove('opacity-0'); document.getElementById('main-image-container').classList.remove('shimmer-skeleton');" />
           <div class="absolute inset-0 bg-gradient-to-t from-surface/40 to-transparent pointer-events-none"></div>
         </div>
+        
         <div id="thumbnail-gallery" class="thumbnail-gallery grid grid-cols-4 gap-4">
-          <div class="aspect-square bg-surface-container-low rounded-lg border border-outline-variant/10 shimmer"></div>
-          <div class="aspect-square bg-surface-container-low rounded-lg border border-outline-variant/10 shimmer"></div>
-          <div class="aspect-square bg-surface-container-low rounded-lg border border-outline-variant/10 shimmer"></div>
-          <div class="aspect-square bg-surface-container-low rounded-lg border border-outline-variant/10 shimmer"></div>
+          <div class="aspect-square rounded-lg shimmer-skeleton"></div>
+          <div class="aspect-square rounded-lg shimmer-skeleton"></div>
+          <div class="aspect-square rounded-lg shimmer-skeleton"></div>
+          <div class="aspect-square rounded-lg shimmer-skeleton"></div>
         </div>
       </div>
 
       <div class="lg:col-span-5 flex flex-col justify-center space-y-8 product-info">
         <div class="space-y-4">
           <div id="product-badges" class="badges flex flex-wrap gap-3">
-            <div class="h-6 w-20 bg-surface-container-low rounded-full shimmer"></div>
-            <div class="h-6 w-24 bg-surface-container-low rounded-full shimmer"></div>
+            <div class="h-6 w-20 rounded-full shimmer-skeleton"></div>
+            <div class="h-6 w-24 rounded-full shimmer-skeleton"></div>
           </div>
-          <h1 id="product-name" class="text-4xl lg:text-6xl font-display font-bold tracking-tighter leading-none text-transparent bg-clip-text bg-gradient-to-r from-on-surface to-primary-fixed-dim">
-            <div class="h-12 w-5/6 bg-surface-container-low rounded-xl mb-2 shimmer"></div>
-          </h1>
-          <div id="product-price" class="price text-primary text-3xl font-display font-light">
-            <div class="h-8 w-1/3 bg-surface-container-low rounded-lg shimmer"></div>
-          </div>
+          
+          <h1 id="product-name" class="text-4xl lg:text-6xl font-display font-bold tracking-tighter leading-none text-transparent bg-clip-text bg-gradient-to-r from-on-surface to-primary-fixed-dim"></h1>
+          
+          <div id="product-price" class="price text-primary text-3xl font-display font-light"></div>
         </div>
 
         <div class="space-y-6">
-          <div id="product-meta-desc" class="text-on-surface-variant text-lg leading-relaxed max-w-md">
-            <div class="space-y-2.5">
-              <div class="h-4 w-full bg-surface-container-low rounded shimmer"></div>
-              <div class="h-4 w-full bg-surface-container-low rounded shimmer"></div>
-              <div class="h-4 w-3/4 bg-surface-container-low rounded shimmer"></div>
-            </div>
-          </div>
+          <p id="product-meta-desc" class="text-on-surface-variant text-lg leading-relaxed max-w-md"></p>
           
           <div id="order-row" class="order-row flex flex-col gap-4 pt-4">
-            <div class="h-[60px] w-full bg-surface-container-low rounded-xl shimmer"></div>
-            <div class="h-[60px] w-full bg-surface-container-low rounded-xl shimmer"></div>
+            <div class="h-14 w-full rounded-xl shimmer-skeleton"></div>
+            <div class="h-14 w-full rounded-xl shimmer-skeleton"></div>
           </div>
         </div>
       </div>
@@ -132,36 +177,16 @@
         
         <div class="space-y-8">
           <h2 class="text-3xl font-display font-bold tracking-tight">The Kinetic Experience</h2>
-          <div id="product-detailed-desc" class="space-y-6 text-on-surface-variant leading-loose font-light">
-            <div class="space-y-3">
-              <div class="h-4 w-full bg-surface-container-low rounded shimmer"></div>
-              <div class="h-4 w-full bg-surface-container-low rounded shimmer"></div>
-              <div class="h-4 w-5/6 bg-surface-container-low rounded shimmer"></div>
-              <div class="h-4 w-full bg-surface-container-low rounded shimmer"></div>
-              <div class="h-4 w-2/3 bg-surface-container-low rounded shimmer"></div>
-            </div>
-          </div>
+          <div id="product-detailed-desc" class="space-y-6 text-on-surface-variant leading-loose font-light"></div>
         </div>
         
         <div class="bg-surface-container-low rounded-2xl p-10 border border-outline-variant/10 h-fit">
           <h3 class="text-sm font-bold tracking-[0.3em] uppercase text-primary mb-10">Technical Specifications</h3>
           <div id="product-specs-grid" class="grid grid-cols-1 gap-8">
-            <div class="flex justify-between items-center py-4 border-b border-white/5 gap-4">
-              <div class="h-4 w-1/4 bg-surface-container-lowest rounded shimmer"></div>
-              <div class="h-4 w-1/2 bg-surface-container-lowest rounded shimmer"></div>
-            </div>
-            <div class="flex justify-between items-center py-4 border-b border-white/5 gap-4">
-              <div class="h-4 w-1/3 bg-surface-container-lowest rounded shimmer"></div>
-              <div class="h-4 w-1/3 bg-surface-container-lowest rounded shimmer"></div>
-            </div>
-            <div class="flex justify-between items-center py-4 border-b border-white/5 gap-4">
-              <div class="h-4 w-1/5 bg-surface-container-lowest rounded shimmer"></div>
-              <div class="h-4 w-1/2 bg-surface-container-lowest rounded shimmer"></div>
-            </div>
-            <div class="flex justify-between items-center py-4 gap-4">
-              <div class="h-4 w-1/4 bg-surface-container-lowest rounded shimmer"></div>
-              <div class="h-4 w-2/5 bg-surface-container-lowest rounded shimmer"></div>
-            </div>
+            <div class="h-8 w-full rounded-lg shimmer-skeleton"></div>
+            <div class="h-8 w-full rounded-lg shimmer-skeleton"></div>
+            <div class="h-8 w-full rounded-lg shimmer-skeleton"></div>
+            <div class="h-8 w-full rounded-lg shimmer-skeleton"></div>
           </div>
         </div>
 
@@ -179,46 +204,10 @@
         </a>
       </div>
       <div id="other-products" class="product-list new-hot-list grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        <div class="bg-surface-container-low rounded-xl overflow-hidden border border-white/5 flex flex-col h-[420px]">
-          <div class="aspect-[4/5] bg-surface-container-lowest relative overflow-hidden shimmer"></div>
-          <div class="p-6 space-y-4 flex-1 flex flex-col justify-between">
-            <div class="space-y-2">
-              <div class="h-5 w-3/4 bg-surface-container-lowest rounded shimmer"></div>
-              <div class="h-4 w-full bg-surface-container-lowest rounded shimmer"></div>
-            </div>
-            <div class="h-4 w-1/3 bg-surface-container-lowest rounded shimmer"></div>
-          </div>
-        </div>
-        <div class="bg-surface-container-low rounded-xl overflow-hidden border border-white/5 flex flex-col h-[420px]">
-          <div class="aspect-[4/5] bg-surface-container-lowest relative overflow-hidden shimmer"></div>
-          <div class="p-6 space-y-4 flex-1 flex flex-col justify-between">
-            <div class="space-y-2">
-              <div class="h-5 w-2/3 bg-surface-container-lowest rounded shimmer"></div>
-              <div class="h-4 w-full bg-surface-container-lowest rounded shimmer"></div>
-            </div>
-            <div class="h-4 w-1/4 bg-surface-container-lowest rounded shimmer"></div>
-          </div>
-        </div>
-        <div class="bg-surface-container-low rounded-xl overflow-hidden border border-white/5 flex flex-col h-[420px]">
-          <div class="aspect-[4/5] bg-surface-container-lowest relative overflow-hidden shimmer"></div>
-          <div class="p-6 space-y-4 flex-1 flex flex-col justify-between">
-            <div class="space-y-2">
-              <div class="h-5 w-5/6 bg-surface-container-lowest rounded shimmer"></div>
-              <div class="h-4 w-full bg-surface-container-lowest rounded shimmer"></div>
-            </div>
-            <div class="h-4 w-1/3 bg-surface-container-lowest rounded shimmer"></div>
-          </div>
-        </div>
-        <div class="bg-surface-container-low rounded-xl overflow-hidden border border-white/5 flex flex-col h-[420px]">
-          <div class="aspect-[4/5] bg-surface-container-lowest relative overflow-hidden shimmer"></div>
-          <div class="p-6 space-y-4 flex-1 flex flex-col justify-between">
-            <div class="space-y-2">
-              <div class="h-5 w-1/2 bg-surface-container-lowest rounded shimmer"></div>
-              <div class="h-4 w-full bg-surface-container-lowest rounded shimmer"></div>
-            </div>
-            <div class="h-4 w-1/4 bg-surface-container-lowest rounded shimmer"></div>
-          </div>
-        </div>
+        <div class="rounded-xl border border-white/5 h-[400px] shimmer-skeleton"></div>
+        <div class="rounded-xl border border-white/5 h-[400px] shimmer-skeleton"></div>
+        <div class="rounded-xl border border-white/5 h-[400px] shimmer-skeleton"></div>
+        <div class="rounded-xl border border-white/5 h-[400px] shimmer-skeleton"></div>
       </div>
     </section>
   </main>
