@@ -68,38 +68,47 @@
 
   <main class="flex-1 max-w-screen-2xl w-full mx-auto px-6 lg:px-8 py-8 lg:py-12 grid grid-cols-1 lg:grid-cols-4 gap-8">
     
-    <aside class="lg:col-span-1 space-y-6 bg-surface-container-low border border-white/5 p-6 rounded-2xl h-fit sticky top-28">
-      <div class="flex items-center justify-between border-b border-white/5 pb-4">
-        <h2 class="font-display font-bold text-lg tracking-tight">Laboratory Filters</h2>
-        <button id="clear-filters-btn" class="text-xs text-primary hover:text-primary-fixed transition-colors font-medium">Reset</button>
-      </div>
+    <aside class="lg:col-span-1 h-fit lg:sticky lg:top-28 mb-4 lg:mb-0">
+      
+      <button type="button" class="w-full flex items-center justify-between bg-surface-container-low border border-white/5 p-4 rounded-xl lg:hidden text-on-surface transition-all active:scale-[0.99]" onclick="document.getElementById('filter-content').classList.toggle('hidden'); this.querySelector('.filter-chevron').classList.toggle('rotate-180');">
+        <span class="font-display font-bold text-sm tracking-tight flex items-center gap-2">
+          <span class="material-symbols-outlined text-purple-300">filter_list</span> Laboratory Filters
+        </span>
+        <span class="material-symbols-outlined filter-chevron transition-transform duration-200">expand_more</span>
+      </button>
 
-      <div class="space-y-2">
-        <label class="text-[10px] font-bold uppercase tracking-widest text-outline">Search Selection</label>
-        <div class="relative">
-          <span class="material-symbols-outlined absolute left-3 top-2.5 text-outline text-sm">search</span>
-          <input type="text" id="search-input" placeholder="Filter this page..." class="w-full bg-surface-container-lowest border border-white/5 rounded-xl pl-9 pr-4 py-2 text-xs text-on-surface placeholder:text-outline-variant focus:border-primary/40 focus:ring-0 transition-all">
+      <div id="filter-content" class="hidden lg:block mt-4 lg:mt-0 space-y-6 bg-surface-container-low border border-white/5 p-6 rounded-2xl">
+        <div class="flex items-center justify-between border-b border-white/5 pb-4">
+          <h2 class="font-display font-bold text-lg tracking-tight">Laboratory Filters</h2>
+          <button id="clear-filters-btn" class="text-xs text-primary hover:text-primary-fixed transition-colors font-medium">Reset</button>
         </div>
-      </div>
 
-      <div class="space-y-2">
-        <label class="text-[10px] font-bold uppercase tracking-widest text-outline">Sort Matrix</label>
-        <select id="sort-select" class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-3 py-2 text-xs text-on-surface focus:border-primary/40 focus:ring-0 transition-all">
-          <option value="latest">Latest Arrivals</option>
-          <option value="price-low">Price: Low to High</option>
-          <option value="price-high">Price: High to Low</option>
-        </select>
-      </div>
-
-      <div class="space-y-3 pt-2">
-        <label class="text-[10px] font-bold uppercase tracking-widest text-outline block">Core Inventory</label>
-        <div id="category-filters-container" class="space-y-1">
-          <div class="text-xs text-outline-variant italic">Loading categories...</div>
+        <div class="space-y-2">
+          <label class="text-[10px] font-bold uppercase tracking-widest text-outline">Search Selection</label>
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-2.5 text-outline text-sm">search</span>
+            <input type="text" id="search-input" placeholder="Filter this page..." class="w-full bg-surface-container-lowest border border-white/5 rounded-xl pl-9 pr-4 py-2 text-xs text-on-surface placeholder:text-outline-variant focus:border-primary/40 focus:ring-0 transition-all">
+          </div>
         </div>
-      </div>
 
-      <div id="dynamic-spec-filters" class="space-y-5 pt-4 border-t border-white/5">
+        <div class="space-y-2">
+          <label class="text-[10px] font-bold uppercase tracking-widest text-outline">Sort Matrix</label>
+          <select id="sort-select" class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-3 py-2 text-xs text-on-surface focus:border-primary/40 focus:ring-0 transition-all">
+            <option value="latest">Latest Arrivals</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+          </select>
         </div>
+
+        <div class="space-y-3 pt-2">
+          <label class="text-[10px] font-bold uppercase tracking-widest text-outline block">Core Inventory</label>
+          <div id="category-filters-container" class="space-y-1">
+            <div class="text-xs text-outline-variant italic">Loading categories...</div>
+          </div>
+        </div>
+
+        <div id="dynamic-spec-filters" class="space-y-5 pt-4 border-t border-white/5"></div>
+      </div>
     </aside>
 
     <div class="lg:col-span-3 flex flex-col justify-between space-y-12">
@@ -141,20 +150,21 @@
     </div>
   </div>
 
-<footer class="bg-slate-950 w-full py-12 px-8 border-t border-white/5 bg-slate-900">
-<div class="flex flex-col md:flex-row justify-between items-center gap-8 max-w-screen-2xl mx-auto font-['Inter'] text-xs tracking-widest text-slate-500">
-<div class="font-['Space_Grotesk'] text-lg font-bold text-slate-200">
-                THE GEEK SHOP
-            </div>
-<div class="flex gap-8">
-<a class="text-slate-600 hover:text-purple-300 transition-opacity opacity-80 hover:opacity-100" href="termsandconditions.html">Terms and Conditions</a>
-<a class="text-slate-600 hover:text-purple-300 transition-opacity opacity-80 hover:opacity-100" href="https://www.facebook.com/thegeek.shop0">Facebook</a>
-<a class="text-slate-600 hover:text-purple-300 transition-opacity opacity-80 hover:opacity-100" href="https://www.instagram.com/thegeek.shop0">Instagram</a>
-<a class="text-slate-600 hover:text-purple-300 transition-opacity opacity-80 hover:opacity-100" href="https://wa.me/01960902526">WhatsApp</a>
-</div>
-<div class="opacity-80">
-                © 2026 THE GEEK SHOP. 
-            </div>
+<footer class="w-full py-12 px-8 pb-24 lg:pb-12 border-t border-white/5 bg-slate-900">
+  <div class="flex flex-col md:flex-row justify-between items-center gap-8 max-w-screen-2xl mx-auto font-['Inter'] text-xs tracking-widest text-slate-500">
+    <div class="font-['Space_Grotesk'] text-lg font-bold text-slate-200">
+      THE GEEK SHOP
+    </div>
+    <div class="flex flex-wrap justify-center gap-8">
+      <a class="text-slate-600 hover:text-purple-300 transition-opacity opacity-80 hover:opacity-100" href="/termsandconditions.html">Terms and Conditions</a>
+      <a class="text-slate-600 hover:text-purple-300 transition-opacity opacity-80 hover:opacity-100" href="https://www.facebook.com/thegeek.shop0">Facebook</a>
+      <a class="text-slate-600 hover:text-purple-300 transition-opacity opacity-80 hover:opacity-100" href="https://www.instagram.com/thegeek.shop0">Instagram</a>
+      <a class="text-slate-600 hover:text-purple-300 transition-opacity opacity-80 hover:opacity-100" href="https://wa.me/01960902526">WhatsApp</a>
+    </div>
+    <div class="opacity-80">
+      © 2026 THE GEEK SHOP. 
+    </div>
+  </div>
 
   <nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-2 py-3 md:hidden bg-[#0c1322]/90 backdrop-blur-lg border-t border-white/5 z-[70]">
     <a class="flex flex-col items-center justify-center text-slate-400 hover:text-slate-200 transition-colors" href="index.html">
@@ -169,11 +179,9 @@
       <span class="material-symbols-outlined">shopping_cart</span>
       <span class="text-[9px] font-bold uppercase tracking-tighter mt-0.5">Cart</span>
     </a>
-    <a class="flex flex-col items-center justify-center text-slate-400 hover:text-slate-200 transition-colors" href="admin.html">
-      <span class="material-symbols-outlined">admin_panel_settings</span>
-      <span class="text-[9px] font-bold uppercase tracking-tighter mt-0.5">Admin</span>
-    </a>
+
   </nav>
+</footer>
 
   <script type="module" src="script.js"></script>
 </body>
