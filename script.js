@@ -554,8 +554,45 @@ async function initProductsPage() {
 
   function buildDynamicSpecFiltersUI() {
     if (!dynamicSpecContainer) return;
+
+    // Constrain the entire dynamic filters container so it never pushes down the page navigation
+    dynamicSpecContainer.className = "space-y-5 pt-4 border-t border-white/5 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar";
+
+    // Inject premium, low-profile custom scrollbar styles to match your dark/stealth theme
+    if (!document.getElementById('custom-filter-scrollbar-style')) {
+      const style = document.createElement('style');
+      style.id = 'custom-filter-scrollbar-style';
+      style.innerHTML = `
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.02);
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.2);
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
     const specMap = {};
-    products.forEach(p => {
+    
+    // Determine context category
+    const checkedCat = document.querySelector('input[name="cat-filter"]:checked');
+    const currentCategory = checkedCat ? checkedCat.value : 'All';
+
+    // Context-sensitive extraction logic
+    const contextualProducts = currentCategory === 'All' 
+      ? products 
+      : products.filter(p => p.category === currentCategory);
+
+    contextualProducts.forEach(p => {
       const parsedSpecs = parseSpecsData(p.specs);
       if (Object.keys(parsedSpecs).length > 0 && !parsedSpecs["Details"]) {
         Object.entries(parsedSpecs).forEach(([key, val]) => {
@@ -566,6 +603,15 @@ async function initProductsPage() {
             specMap[formattedKey].add(formattedVal);
           }
         });
+      }
+    });
+
+    // Prune out checked parameters that are invalid or absent in the updated context
+    Object.keys(selectedSpecs).forEach(specName => {
+      if (!specMap[specName]) {
+        delete selectedSpecs[specName];
+      } else {
+        selectedSpecs[specName] = selectedSpecs[specName].filter(val => specMap[specName].has(val));
       }
     });
     
@@ -582,9 +628,9 @@ async function initProductsPage() {
       }).join('');
       
       return `
-        <div class="space-y-2">
+        <div class="space-y-2 pb-3 border-b border-white/5 last:border-0">
           <label class="text-[10px] font-bold uppercase tracking-widest text-outline block capitalize">${specName}</label>
-          <div class="space-y-1 max-h-40 overflow-y-auto pr-1">${optionsHTML}</div>
+          <div class="space-y-1 max-h-32 overflow-y-auto pr-1 custom-scrollbar">${optionsHTML}</div>
         </div>
       `;
     }).join('');
@@ -707,7 +753,14 @@ async function initProductsPage() {
 
   if (searchInput) searchInput.addEventListener('input', () => { currentPage = 1; renderGrid(); });
   if (sortSelect) sortSelect.addEventListener('change', () => { currentPage = 1; renderGrid(); });
-  if (categoryContainer) categoryContainer.addEventListener('change', () => { currentPage = 1; renderGrid(); });
+  
+  if (categoryContainer) {
+    categoryContainer.addEventListener('change', () => { 
+      currentPage = 1; 
+      buildDynamicSpecFiltersUI(); 
+      renderGrid(); 
+    });
+  }
 
   buildDynamicSpecFiltersUI();
   renderGrid();
