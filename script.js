@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc, getDoc, setDoc, orderBy, query, where, runTransaction } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc, getDoc, setDoc, orderBy, query, where, runTransaction, limit } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 import { firebaseConfig, BKASH_NUMBER, COD_NUMBER, DELIVERY_FEE } from './config.js';
 
 // ====== INITIALIZE FIREBASE ======
@@ -9,6 +9,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 // ====== GLOBAL UTILS & MEMOIZED CACHING ======
+const MAX_ITEMS_PER_SHARD = 100;
 const productsMap = new Map();
 let cachedProducts = null;
 let fetchPromise = null;
@@ -17,64 +18,45 @@ const CACHE_KEY = 'store_products_data';
 const CACHE_EXPIRY_KEY = 'store_products_expiry';
 const CACHE_TTL = 5 * 60 * 1000;
 
-// ====== DYNAMIC BYTE-SIZE SHARDING ENGINE ======
-async function rebuildCatalogShards(productsList) {
-  const MAX_BYTES = 800000;
-  const chunks = [];
+// ====== EMERGENCY FULL MATRIX REBUILD ======
+// Automatically runs once to migrate your existing store to the Ledger system
+async function emergencyRebuildMatrix() {
+  const snapshot = await getDocs(collection(db, 'products'));
+  const productsList = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  const liveInventoryMap = {};
+  const productMap = {};
+  let currentShardId = 0;
   let currentChunk = [];
-  let currentByteSize = 0;
 
-  for (const product of productsList) {
-    const productString = JSON.stringify(product);
-    const productBytes = new Blob([productString]).size;
-    if (currentByteSize + productBytes > MAX_BYTES && currentChunk.length > 0) {
-      chunks.push(currentChunk);
+  for (const p of productsList) {
+    liveInventoryMap[p.id] = p.stock;
+    productMap[p.id] = currentShardId;
+    currentChunk.push(p);
+
+    if (currentChunk.length >= MAX_ITEMS_PER_SHARD) {
+      await setDoc(doc(db, 'master_catalog_shards', `shard_${currentShardId}`), { items: currentChunk });
+      currentShardId++;
       currentChunk = [];
-      currentByteSize = 0;
-    }
-    currentChunk.push(product);
-    currentByteSize += productBytes;
-  }
-
-  if (currentChunk.length > 0) chunks.push(currentChunk);
-
-  const metaRef = doc(db, 'store_data', 'catalog_meta');
-  const metaSnap = await getDoc(metaRef);
-  const oldShardCount = metaSnap.exists() ? (metaSnap.data().shardCount || 0) : 0;
-
-  for (let i = 0; i < chunks.length; i++) {
-    await setDoc(doc(db, 'master_catalog_shards', `shard_${i}`), { items: chunks[i] });
-  }
-
-  if (oldShardCount > chunks.length) {
-    for (let i = chunks.length; i < oldShardCount; i++) {
-      try { await deleteDoc(doc(db, 'master_catalog_shards', `shard_${i}`)); } 
-      catch (e) { console.warn(`Cleanup skipped for shard_${i}`); }
     }
   }
 
-  await setDoc(metaRef, { shardCount: chunks.length });
-}
-
-// Background sync function used by Admin tools
-async function syncMasterCatalog() {
-  try {
-    const snapshot = await getDocs(collection(db, 'products'));
-    const productsList = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-    
-    // --- NEW: Generate the Flat Live Inventory Map ---
-    const liveInventoryMap = {};
-    productsList.forEach(p => { liveInventoryMap[p.id] = p.stock; });
-    await setDoc(doc(db, 'store_data', 'live_inventory'), liveInventoryMap);
-    // -------------------------------------------------
-
-    await rebuildCatalogShards(productsList);
-  } catch (err) {
-    console.error("Critical: Failed to compile master catalog matrix:", err);
+  if (currentChunk.length > 0) {
+    await setDoc(doc(db, 'master_catalog_shards', `shard_${currentShardId}`), { items: currentChunk });
+  } else {
+    currentShardId = Math.max(0, currentShardId - 1);
   }
+
+  await setDoc(doc(db, 'store_data', 'shard_ledger'), {
+    activeShard: currentShardId,
+    shardCount: currentShardId + 1,
+    productMap: productMap
+  });
+
+  await setDoc(doc(db, 'store_data', 'live_inventory'), liveInventoryMap);
 }
 
-// --- NEW: Advanced Multi-Source Loader ---
+// ====== 1. OPTIMIZED CATALOG LOADER (~3 READS) ======
 async function loadProducts(forceRefresh = false) {
   const now = Date.now();
 
@@ -93,7 +75,6 @@ async function loadProducts(forceRefresh = false) {
     const localCache = localStorage.getItem(CACHE_KEY);
     const cacheExpiry = localStorage.getItem(CACHE_EXPIRY_KEY);
 
-    // 1. Fetch BASE Catalogue (from Cache or Shards)
     if (localCache && cacheExpiry && now < Number(cacheExpiry)) {
       try { products = JSON.parse(localCache); } 
       catch (err) { console.error('Cache parsing failed:', err); }
@@ -101,34 +82,47 @@ async function loadProducts(forceRefresh = false) {
 
     if (products.length === 0) {
       try {
-        const metaRef = doc(db, 'store_data', 'catalog_meta');
-        const metaSnap = await getDoc(metaRef);
+        const ledgerRef = doc(db, 'store_data', 'shard_ledger');
+        let ledgerSnap = await getDoc(ledgerRef);
         
-        if (metaSnap.exists()) {
-          const shardCount = metaSnap.data().shardCount || 0;
-          const shardPromises = [];
-          for (let i = 0; i < shardCount; i++) {
-            shardPromises.push(getDoc(doc(db, 'master_catalog_shards', `shard_${i}`)));
+        // Auto-migration if ledger doesn't exist yet
+        if (!ledgerSnap.exists()) {
+          console.warn("Ledger missing. Checking privileges...");
+          // Ensure ONLY authenticated admins attempt the matrix rebuild
+          if (auth.currentUser) {
+              console.log("Admin detected. Running initial migration to Delta Sync...");
+              await emergencyRebuildMatrix();
+              ledgerSnap = await getDoc(ledgerRef);
+          } else {
+              console.warn("Migration aborted: Admin privileges required to build shards. Returning empty catalog.");
+              return [];
           }
-          const shardSnaps = await Promise.all(shardPromises);
-          shardSnaps.forEach(snap => {
-            if (snap.exists()) { products = products.concat(snap.data().items || []); }
-          });
-        } else {
-          await syncMasterCatalog();
-          const snapshot = await getDocs(collection(db, 'products'));
-          products = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
         }
         
-        localStorage.setItem(CACHE_KEY, JSON.stringify(products));
-        localStorage.setItem(CACHE_EXPIRY_KEY, (now + CACHE_TTL).toString());
+        // Ensure ledgerSnap exists before proceeding
+        if (ledgerSnap.exists()) {
+            const shardCount = ledgerSnap.data().shardCount || 1;
+            const shardPromises = [];
+            
+            for (let i = 0; i < shardCount; i++) {
+              shardPromises.push(getDoc(doc(db, 'master_catalog_shards', `shard_${i}`)));
+            }
+            
+            const shardSnaps = await Promise.all(shardPromises);
+            shardSnaps.forEach(snap => {
+              if (snap.exists()) { products = products.concat(snap.data().items || []); }
+            });
+            
+            localStorage.setItem(CACHE_KEY, JSON.stringify(products));
+            localStorage.setItem(CACHE_EXPIRY_KEY, (now + CACHE_TTL).toString());
+        }
       } catch (err) {
         console.error('Error loading products:', err);
         return [];
       }
     }
 
-    // 2. --- NEW: Merge Flat Live Inventory into memory ---
+    // Merge Flat Live Inventory into memory
     try {
       const liveSnap = await getDoc(doc(db, 'store_data', 'live_inventory'));
       if (liveSnap.exists()) {
@@ -146,7 +140,6 @@ async function loadProducts(forceRefresh = false) {
     } catch (e) {
       console.warn("Live inventory check bypassed:", e);
     }
-    // ----------------------------------------------------
 
     cachedProducts = products;
     productsMap.clear();
@@ -155,6 +148,79 @@ async function loadProducts(forceRefresh = false) {
   })();
 
   return fetchPromise;
+}
+
+// ====== 2. INCREMENTAL DELTA SYNC ENGINE (2 READS) ======
+async function syncSingleProductToMatrix(productData, isDelete = false) {
+  const ledgerRef = doc(db, 'store_data', 'shard_ledger');
+  let ledgerSnap = await getDoc(ledgerRef);
+  
+  if (!ledgerSnap.exists()) {
+      if(auth.currentUser) {
+          await emergencyRebuildMatrix();
+          ledgerSnap = await getDoc(ledgerRef);
+      } else {
+          throw new Error("Admin privileges required to sync matrix.");
+      }
+  }
+  
+  let ledgerData = ledgerSnap.data();
+  const productId = productData.id;
+  
+  // CASE A: EDITING OR DELETING
+  if (ledgerData.productMap[productId] !== undefined) {
+    const targetShardId = ledgerData.productMap[productId];
+    const shardRef = doc(db, 'master_catalog_shards', `shard_${targetShardId}`);
+    const shardSnap = await getDoc(shardRef);
+    
+    if (shardSnap.exists()) {
+      let items = shardSnap.data().items || [];
+      items = items.filter(item => item.id !== productId);
+      if (!isDelete) items.push(productData);
+      await updateDoc(shardRef, { items: items });
+    }
+    
+    if (isDelete) {
+      delete ledgerData.productMap[productId];
+      await updateDoc(ledgerRef, { productMap: ledgerData.productMap });
+      
+      // Also remove from live inventory map
+      const inventoryRef = doc(db, 'store_data', 'live_inventory');
+      const invSnap = await getDoc(inventoryRef);
+      if(invSnap.exists()) {
+        const invData = invSnap.data();
+        delete invData[productId];
+        await setDoc(inventoryRef, invData);
+      }
+    }
+    return;
+  }
+  
+  // CASE B: ADDING A BRAND NEW PRODUCT
+  if (!isDelete) {
+    let currentShardId = ledgerData.activeShard;
+    let shardRef = doc(db, 'master_catalog_shards', `shard_${currentShardId}`);
+    let shardSnap = await getDoc(shardRef);
+    let items = shardSnap.exists() ? (shardSnap.data().items || []) : [];
+    
+    if (items.length >= MAX_ITEMS_PER_SHARD) {
+      currentShardId += 1;
+      shardRef = doc(db, 'master_catalog_shards', `shard_${currentShardId}`);
+      items = [];
+      ledgerData.activeShard = currentShardId;
+      ledgerData.shardCount = currentShardId + 1;
+    }
+    
+    items.push(productData);
+    await setDoc(shardRef, { items: items });
+    
+    ledgerData.productMap[productId] = currentShardId;
+    await updateDoc(ledgerRef, { 
+      activeShard: ledgerData.activeShard,
+      shardCount: ledgerData.shardCount,
+      productMap: ledgerData.productMap 
+    });
+  }
 }
 
 function shuffle(array) {
@@ -963,7 +1029,6 @@ Subtotal collected on delivery.`;
         
         let generatedOrderId = '';
 
-        // --- NEW: THE SECURE CHECKOUT TRANSACTION ---
         await runTransaction(db, async (transaction) => {
           const productRefs = checkoutItems.map(item => doc(db, 'products', item.id));
           const productSnaps = await Promise.all(productRefs.map(ref => transaction.get(ref)));
@@ -984,7 +1049,6 @@ Subtotal collected on delivery.`;
           const liveInventoryRef = doc(db, 'store_data', 'live_inventory');
           const liveUpdates = {};
 
-          // Safely deduct stock for standard items
           for (let i = 0; i < checkoutItems.length; i++) {
             const snap = productSnaps[i];
             const data = snap.data();
@@ -993,8 +1057,8 @@ Subtotal collected on delivery.`;
             
             if (currentStock !== -1 && data.availability !== 'Pre Order') {
               const newStock = currentStock - item.qty;
-              transaction.update(productRefs[i], { stock: newStock }); // Update secure admin file
-              liveUpdates[item.id] = newStock;                         // Prep public map update
+              transaction.update(productRefs[i], { stock: newStock }); 
+              liveUpdates[item.id] = newStock;                         
             }
           }
 
@@ -1002,16 +1066,13 @@ Subtotal collected on delivery.`;
           transaction.set(newOrderRef, orderData);
           generatedOrderId = newOrderRef.id;
 
-          // Push new stock numbers to the live map instantly
           if (Object.keys(liveUpdates).length > 0) {
             transaction.set(liveInventoryRef, liveUpdates, { merge: true });
           }
         });
         
-        // Wipe local storage so their browser fetches the new stock numbers on next page load
         localStorage.removeItem('store_products_data');
         localStorage.removeItem('store_products_expiry');
-        // ------------------------------------------
 
         if (!singleProductId) {
           localStorage.removeItem('cart');
@@ -1103,14 +1164,15 @@ async function initAdminPanel() {
 async function setupInventoryAdmin() {
   const form = document.getElementById('product-form');
   const listContainer = document.getElementById('admin-products-list');
+  const syncBtn = document.getElementById('sync-catalog-btn');
   let editingId = null;
   let products = await loadProducts();
 
   function switchToAddTab(isResetting = true) {
-    document.getElementById('tab-add')?.classList.add('border-primary', 'text-primary');
-    document.getElementById('tab-add')?.classList.remove('border-transparent', 'text-slate-400');
-    document.getElementById('tab-manage')?.classList.remove('border-primary', 'text-primary');
-    document.getElementById('tab-manage')?.classList.add('border-transparent', 'text-slate-400');
+    document.getElementById('tab-add')?.classList.add('bg-surface-container-low', 'text-primary');
+    document.getElementById('tab-add')?.classList.remove('bg-transparent', 'text-outline');
+    document.getElementById('tab-manage')?.classList.remove('bg-surface-container-low', 'text-primary');
+    document.getElementById('tab-manage')?.classList.add('bg-transparent', 'text-outline');
     
     document.getElementById('view-add')?.classList.remove('hidden');
     document.getElementById('view-manage')?.classList.add('hidden');
@@ -1126,15 +1188,34 @@ async function setupInventoryAdmin() {
   document.getElementById('tab-add')?.addEventListener('click', () => { switchToAddTab(true); });
   
   document.getElementById('tab-manage')?.addEventListener('click', async () => {
-    document.getElementById('tab-manage')?.classList.add('border-primary', 'text-primary');
-    document.getElementById('tab-manage')?.classList.remove('border-transparent', 'text-slate-400');
-    document.getElementById('tab-add')?.classList.remove('border-primary', 'text-primary');
-    document.getElementById('tab-add')?.classList.add('border-transparent', 'text-slate-400');
+    document.getElementById('tab-manage')?.classList.add('bg-surface-container-low', 'text-primary');
+    document.getElementById('tab-manage')?.classList.remove('bg-transparent', 'text-outline');
+    document.getElementById('tab-add')?.classList.remove('bg-surface-container-low', 'text-primary');
+    document.getElementById('tab-add')?.classList.add('bg-transparent', 'text-outline');
     document.getElementById('view-manage')?.classList.remove('hidden');
     document.getElementById('view-add')?.classList.add('hidden');
-    products = await loadProducts();
+    products = await loadProducts(true);
     renderAdminProductsList();
   });
+
+  if (syncBtn) {
+    syncBtn.addEventListener('click', async () => {
+      syncBtn.disabled = true;
+      const originalHTML = syncBtn.innerHTML;
+      syncBtn.innerHTML = `<span class="material-symbols-outlined animate-spin text-sm">sync</span> Forcing Matrix Rebuild...`;
+      try {
+        await emergencyRebuildMatrix();
+        products = await loadProducts(true);
+        renderAdminProductsList();
+        alert('Master matrix forcibly rebuilt. Shards and Ledgers are perfectly synced.');
+      } catch (err) {
+        alert('Failed rebuild sync: ' + err.message);
+      } finally {
+        syncBtn.innerHTML = originalHTML;
+        syncBtn.disabled = false;
+      }
+    });
+  }
 
   function renderAdminProductsList() {
     if (!listContainer) return;
@@ -1183,9 +1264,9 @@ async function setupInventoryAdmin() {
       };
       
       div.querySelector('.del-btn').onclick = async () => {
-        if(confirm(`Delete ${p.name}?`)) {
+        if(confirm(`Delete ${p.name}? This will remove it instantly.`)) {
           await deleteDoc(doc(db, 'products', p.id));
-          await syncMasterCatalog();
+          await syncSingleProductToMatrix({ id: p.id }, true);
           products = await loadProducts(true);
           renderAdminProductsList();
         }
@@ -1215,10 +1296,26 @@ async function setupInventoryAdmin() {
       };
       
       try {
-        if (editingId) { await updateDoc(doc(db, 'products', editingId), data); alert('Updated!'); } 
-        else { await addDoc(collection(db, 'products'), data); alert('Added!'); }
-        
-        await syncMasterCatalog();
+        if (editingId) { 
+          await updateDoc(doc(db, 'products', editingId), data); 
+          data.id = editingId;
+          await syncSingleProductToMatrix(data, false);
+          
+          const inventoryRef = doc(db, 'store_data', 'live_inventory');
+          await updateDoc(inventoryRef, { [data.id]: data.stock });
+          
+          alert('Product successfully updated and deployed!'); 
+        } 
+        else { 
+          const docRef = await addDoc(collection(db, 'products'), data); 
+          data.id = docRef.id;
+          await syncSingleProductToMatrix(data, false);
+          
+          const inventoryRef = doc(db, 'store_data', 'live_inventory');
+          await updateDoc(inventoryRef, { [data.id]: data.stock });
+          
+          alert('New product successfully added and deployed!'); 
+        }
         products = await loadProducts(true);
         switchToAddTab(true); 
       } catch(err) { alert(err.message); }
@@ -1228,16 +1325,29 @@ async function setupInventoryAdmin() {
 
 async function setupOrdersAdmin() {
   const listContainer = document.getElementById('orders-list');
+  const tabActiveOrders = document.getElementById('tab-active-orders');
+  const tabOrderHistory = document.getElementById('tab-order-history');
   if (!listContainer) return;
+
+  let currentPipelineView = 'active'; 
+  const activeStatuses = ['Pending Verification', 'Processing', 'Dispatched'];
+  const historyStatuses = ['Delivered', 'Cancelled'];
   
-  async function loadAndRenderOrders() {
-    listContainer.innerHTML = '<div class="p-8 text-center text-outline"><span class="material-symbols-outlined animate-spin">sync</span></div>';
+  async function loadAndRenderOrders(pipelineType) {
+    listContainer.innerHTML = '<div class="p-8 text-center text-outline"><span class="material-symbols-outlined animate-spin">sync</span> Querying Matrix Pipeline...</div>';
     try {
-      const q = query(collection(db, 'orders'), orderBy('timeISO', 'desc'));
+      const targetStatuses = pipelineType === 'active' ? activeStatuses : historyStatuses;
+      
+      const q = query(
+        collection(db, 'orders'), 
+        where('status', 'in', targetStatuses),
+        orderBy('timeISO', 'desc'),
+        limit(50)
+      );
       const snapshot = await getDocs(q);
       
       if (snapshot.empty) {
-        listContainer.innerHTML = '<div class="p-8 text-center text-outline">No active manifests found.</div>';
+        listContainer.innerHTML = `<div class="p-8 text-center text-outline">No targeted manifests found in ${pipelineType} logs.</div>`;
         return;
       }
 
@@ -1258,7 +1368,7 @@ async function setupOrdersAdmin() {
         });
 
         const div = document.createElement('div');
-        div.className = "bg-surface-container p-6 rounded-2xl border border-white/5 space-y-4 shadow-xl";
+        div.className = "bg-surface-container p-6 rounded-2xl border border-white/5 space-y-4 shadow-xl transition-all duration-300";
         div.innerHTML = `
           <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 border-b border-white/5 pb-4">
             <div>
@@ -1269,7 +1379,7 @@ async function setupOrdersAdmin() {
               </div>
             </div>
             <div class="flex flex-col items-end gap-2">
-              <span class="px-4 py-1 rounded-full text-xs font-bold border uppercase tracking-widest ${badgeClass}">${o.status || 'Pending'}</span>
+              <span class="status-badge px-4 py-1 rounded-full text-xs font-bold border uppercase tracking-widest ${badgeClass}">${o.status || 'Pending'}</span>
               <select class="status-select bg-surface-container-low border border-white/10 rounded-lg text-xs px-2 py-1 focus:ring-0 focus:border-primary/50 text-slate-300">
                 <option value="Pending Verification" ${o.status==='Pending Verification'?'selected':''}>Pending Verification</option>
                 <option value="Processing" ${o.status==='Processing'?'selected':''}>Processing</option>
@@ -1303,20 +1413,57 @@ async function setupOrdersAdmin() {
         
         div.querySelector('.status-select').addEventListener('change', async (e) => {
           const newStatus = e.target.value;
+          const selectElement = e.target;
+          selectElement.disabled = true;
+          
           try {
             await updateDoc(doc(db, 'orders', oId), { status: newStatus });
-            loadAndRenderOrders();
-          } catch(err) { alert("Failed to update status: " + err.message); }
+            
+            const isTargetActive = activeStatuses.includes(newStatus);
+            const checkingCurrentActive = currentPipelineView === 'active';
+            
+            if (isTargetActive !== checkingCurrentActive) {
+              div.classList.add('opacity-0', 'scale-95');
+              setTimeout(() => { div.remove(); }, 300);
+            } else {
+              const localBadge = div.querySelector('.status-badge');
+              if (localBadge) {
+                localBadge.className = `status-badge px-4 py-1 rounded-full text-xs font-bold border uppercase tracking-widest ${statusColors[newStatus]}`;
+                localBadge.textContent = newStatus;
+              }
+            }
+          } catch(err) { 
+            alert("Failed to modify pipeline tracking parameters: " + err.message); 
+            selectElement.value = o.status;
+          } finally {
+            selectElement.disabled = false;
+          }
         });
         
         listContainer.appendChild(div);
       });
     } catch(err) {
-      listContainer.innerHTML = `<div class="p-8 text-center text-red-400">Error loading orders: Check if an Index is required by Firebase on 'timeISO'. ${err.message}</div>`;
+      listContainer.innerHTML = `<div class="p-8 text-center text-red-400">Error rendering logs. Confirm configuration rules match expected indexing criteria. ${err.message}</div>`;
     }
   }
 
-  loadAndRenderOrders();
+  if (tabActiveOrders && tabOrderHistory) {
+    tabActiveOrders.addEventListener('click', () => {
+      currentPipelineView = 'active';
+      tabActiveOrders.className = "font-display font-bold tracking-wider text-sm text-primary border-b-2 border-primary pb-2 px-2 transition-all uppercase";
+      tabOrderHistory.className = "font-display font-bold tracking-wider text-sm text-outline hover:text-slate-200 border-b-2 border-transparent pb-2 px-2 transition-all uppercase";
+      loadAndRenderOrders('active');
+    });
+
+    tabOrderHistory.addEventListener('click', () => {
+      currentPipelineView = 'history';
+      tabOrderHistory.className = "font-display font-bold tracking-wider text-sm text-primary border-b-2 border-primary pb-2 px-2 transition-all uppercase";
+      tabActiveOrders.className = "font-display font-bold tracking-wider text-sm text-outline hover:text-slate-200 border-b-2 border-transparent pb-2 px-2 transition-all uppercase";
+      loadAndRenderOrders('history');
+    });
+  }
+
+  loadAndRenderOrders('active');
 }
 
 // ====== GLOBAL INITIALIZATION ROUTER ======
