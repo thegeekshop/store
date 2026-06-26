@@ -593,9 +593,9 @@ async function initProductsPage() {
     if (!dynamicSpecContainer) return;
 
     // Constrain the entire dynamic filters container so it never pushes down the page navigation
-    dynamicSpecContainer.className = "space-y-5 pt-4 border-t border-white/5 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar";
+    dynamicSpecContainer.className = "space-y-1 pt-4 border-t border-white/5 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar";
 
-    // Inject premium, low-profile custom scrollbar styles to match your dark/stealth theme
+    // Inject premium, low-profile custom scrollbar styles & details marker hiders
     if (!document.getElementById('custom-filter-scrollbar-style')) {
       const style = document.createElement('style');
       style.id = 'custom-filter-scrollbar-style';
@@ -614,6 +614,8 @@ async function initProductsPage() {
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: rgba(255, 255, 255, 0.2);
         }
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
       `;
       document.head.appendChild(style);
     }
@@ -635,9 +637,12 @@ async function initProductsPage() {
         Object.entries(parsedSpecs).forEach(([key, val]) => {
           if (key && val && key.toLowerCase() !== 'id') {
             const formattedKey = key.trim();
-            const formattedVal = val.toString().trim();
-            if (!specMap[formattedKey]) specMap[formattedKey] = new Set();
-            specMap[formattedKey].add(formattedVal);
+            // Regex strips anything inside parentheses e.g. "Cherry (oem)" -> "Cherry" for filters only
+            const formattedVal = val.toString().replace(/\s*\([^)]*\)\s*/g, '').trim();
+            if (formattedVal) {
+                if (!specMap[formattedKey]) specMap[formattedKey] = new Set();
+                specMap[formattedKey].add(formattedVal);
+            }
           }
         });
       }
@@ -652,7 +657,7 @@ async function initProductsPage() {
       }
     });
     
-    dynamicSpecContainer.innerHTML = Object.entries(specMap).map(([specName, uniqueValues]) => {
+    dynamicSpecContainer.innerHTML = Object.entries(specMap).map(([specName, uniqueValues], index) => {
       if (!selectedSpecs[specName]) selectedSpecs[specName] = [];
       const optionsHTML = Array.from(uniqueValues).map(val => {
         const isChecked = selectedSpecs[specName].includes(val) ? 'checked' : '';
@@ -664,11 +669,17 @@ async function initProductsPage() {
         `;
       }).join('');
       
+      // Auto-open if items are selected, OR if it's one of the first 2 sections
+      const isOpen = (selectedSpecs[specName].length > 0 || index < 2) ? 'open' : '';
+
       return `
-        <div class="space-y-2 pb-3 border-b border-white/5 last:border-0">
-          <label class="text-[10px] font-bold uppercase tracking-widest text-outline block capitalize">${specName}</label>
-          <div class="space-y-1 max-h-32 overflow-y-auto pr-1 custom-scrollbar">${optionsHTML}</div>
-        </div>
+        <details class="group border-b border-white/5 last:border-0 py-3" ${isOpen}>
+          <summary class="flex justify-between items-center cursor-pointer select-none outline-none focus:outline-none">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-outline block capitalize">${specName}</span>
+            <span class="material-symbols-outlined text-outline group-hover:text-primary transition-transform duration-300 text-sm group-open:rotate-180">keyboard_arrow_down</span>
+          </summary>
+          <div class="space-y-1 max-h-32 overflow-y-auto pr-1 mt-3 custom-scrollbar">${optionsHTML}</div>
+        </details>
       `;
     }).join('');
 
@@ -713,7 +724,10 @@ async function initProductsPage() {
       if (allowedValues.length > 0) {
         result = result.filter(p => {
           const parsedSpecs = parseSpecsData(p.specs);
-          return parsedSpecs[specKey] && allowedValues.includes(parsedSpecs[specKey].toString().trim());
+          if (!parsedSpecs[specKey]) return false;
+          // Apply the same bracket strip logic here so it matches the filter selection
+          const strippedVal = parsedSpecs[specKey].toString().replace(/\s*\([^)]*\)\s*/g, '').trim();
+          return allowedValues.includes(strippedVal);
         });
       }
     });
