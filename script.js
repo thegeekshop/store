@@ -17,6 +17,42 @@ let fetchPromise = null;
 const CACHE_KEY = 'store_products_data';
 const CACHE_EXPIRY_KEY = 'store_products_expiry';
 const CACHE_TTL = 5 * 60 * 1000;
+// ====== SLICK TOAST NOTIFICATION ======
+function showToast(message) {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'fixed top-6 left-1/2 -translate-x-1/2 z-[300] flex flex-col gap-2 pointer-events-none w-full max-w-sm px-4';
+    document.body.appendChild(container);
+  }
+
+  const toast = document.createElement('div');
+  toast.className = 'bg-surface-container-high/95 backdrop-blur-md text-on-surface text-xs font-bold uppercase tracking-wider px-5 py-3 rounded-xl border border-primary/20 shadow-2xl flex items-center gap-3 transition-all duration-300 opacity-0 -translate-y-2 pointer-events-auto';
+  toast.innerHTML = `
+    <span class="material-symbols-outlined text-primary text-lg">shopping_bag</span>
+    <span class="flex-1 truncate">${message}</span>
+  `;
+
+  container.appendChild(toast);
+
+  // Trigger smooth enter animation
+  setTimeout(() => {
+    toast.classList.remove('opacity-0', '-translate-y-2');
+  }, 10);
+
+  // Autohide & clean up DOM container after 1.5 seconds
+  setTimeout(() => {
+    toast.classList.add('opacity-0', '-translate-y-2');
+    setTimeout(() => {
+      toast.remove();
+      if (container.children.length === 0) {
+        container.remove();
+      }
+    }, 300);
+  }, 1500);
+}
+
 
 // ====== EMERGENCY FULL MATRIX REBUILD ======
 // Automatically runs once to migrate your existing store to the Ledger system
@@ -360,6 +396,7 @@ window.addToCart = function(productId, qty = 1) {
     cart.push({ id: productId, name: product.name, color: product.color || '', price: finalPrice, image: product.images?.[0] || 'logo.png', qty: qty, isPreOrder: isPreOrder });
   }
   saveCart(cart);
+  showToast('Added to cart!');
 }
 
 function removeFromCart(productId) {
@@ -464,7 +501,7 @@ function createProductCard(p, products) {
       <img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100" src="${images[0] || 'logo.png'}" alt="${p.name}">
       <div class="absolute top-4 left-4 right-4 flex flex-wrap z-10">${badgeHTML}</div>
       ${!isOOS && !isUpcoming ?
-      `<button class="absolute bottom-4 right-4 w-12 h-12 bg-surface-bright/80 backdrop-blur-md rounded-full flex items-center justify-center text-primary opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0 shadow-2xl z-20" data-id="${p.id}" onclick="event.stopPropagation(); window.addToCart('${p.id}'); alert('Added to cart!');">
+      `<button class="absolute bottom-4 right-4 w-12 h-12 bg-surface-bright/80 backdrop-blur-md rounded-full flex items-center justify-center text-primary opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0 shadow-2xl z-20" data-id="${p.id}" onclick="event.stopPropagation(); window.addToCart('${p.id}');">
         <span class="material-symbols-outlined pointer-events-none">add_shopping_cart</span>
       </button>` : ''}
     </div>
