@@ -333,7 +333,8 @@
 
           let deliveryText = '';
           if (isDelivered) {
-            const deliveredDate = order.deliveredAt ? new Date(order.deliveredAt).toLocaleDateString('en-GB') : 'N/A';
+            // FIX APPLIED HERE: changed order.deliveredAt to order.deliveredDate
+            const deliveredDate = order.deliveredDate ? new Date(order.deliveredDate).toLocaleDateString('en-GB') : 'N/A';
             deliveryText = `<strong class="text-green-400">Delivered on: ${deliveredDate}</strong>`;
           } else {
             const days = hasPreOrderItem ? '20–40 days' : '3–7 days';
