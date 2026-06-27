@@ -709,7 +709,7 @@ async function initProductsPage() {
   if (urlSearch && searchInput) searchInput.value = urlSearch;
 
   function renderGrid() {
-    let result = [...products];
+    let result = [...products].reverse();
     if (searchInput && searchInput.value) {
       const q = searchInput.value.toLowerCase();
       result = result.filter(p => p.name.toLowerCase().includes(q) || (p.description && p.description.toLowerCase().includes(q)));
