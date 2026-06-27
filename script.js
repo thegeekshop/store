@@ -1477,6 +1477,7 @@ async function setupOrdersAdmin() {
           <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 border-b border-white/5 pb-4">
             <div>
               <div class="font-mono text-xs text-outline mb-1">ID: ${oId} | ${dateString}</div>
+              ${o.deliveredDate ? `<div class="font-mono text-xs text-green-400 font-bold mb-1">Delivered: ${o.deliveredDate}</div>` : ''}
               <h3 class="font-bold text-lg">${o.customerName}</h3>
               <div class="text-sm text-outline flex items-center gap-3 mt-1">
                 <a href="tel:${o.phone}" class="hover:text-primary transition-colors flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">call</span> ${o.phone}</a>
@@ -1518,10 +1519,25 @@ async function setupOrdersAdmin() {
         div.querySelector('.status-select').addEventListener('change', async (e) => {
           const newStatus = e.target.value;
           const selectElement = e.target;
+          
+          let updateData = { status: newStatus };
+          
+          if (newStatus === 'Delivered') {
+            const defaultDate = new Date().toISOString().split('T')[0];
+            const promptedDate = prompt("Enter delivery date (YYYY-MM-DD):", defaultDate);
+            
+            // Revert changes if admin cancels the prompt
+            if (promptedDate === null) {
+              selectElement.value = o.status;
+              return;
+            }
+            updateData.deliveredDate = promptedDate.trim() !== '' ? promptedDate : defaultDate;
+          }
+
           selectElement.disabled = true;
           
           try {
-            await updateDoc(doc(db, 'orders', oId), { status: newStatus });
+            await updateDoc(doc(db, 'orders', oId), updateData);
             
             const isTargetActive = activeStatuses.includes(newStatus);
             const checkingCurrentActive = currentPipelineView === 'active';
